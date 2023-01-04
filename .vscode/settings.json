@@ -1,0 +1,25 @@
+{
+	// Web: save on format
+	"[typescript][javascript]": {
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": true
+		},
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[scss]": {
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": true
+		},
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	// ESLint config
+	"eslint.format.enable": true,
+	"eslint.workingDirectories": ["."],
+	"eslint.validate": ["javascript", "typescript"],
+	// VS Code config
+	"html.format.wrapLineLength": 200,
+	"files.eol": "\n",
+	"files.insertFinalNewline": true
+}
