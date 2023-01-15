@@ -1,3 +1,52 @@
+* {
+	min-width: 0;
+	min-height: 0;
+}
+
+:root {
+	--wheel-height-percent-of-page: 86;
+	--hub-height-percent-of-page: 23;
+	--color-background-left: #522948;
+	--color-background-right: #0e3053;
+	--color-wheel-topic-1: #7fab40;
+	--color-wheel-topic-2: #a6c3c9;
+	--color-wheel-topic-3: #442968;
+	--color-wheel-topic-4: #f79321;
+	--color-wheel-topic-5: #d3c0ab;
+	--color-wheel-topic-6: #5f3415;
+}
+
+html,
 body {
-	background: lightblue;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+}
+
+body {
+	display: flex;
+	align-items: center;
+	background: linear-gradient(to right, var(--color-background-left) 50%, var(--color-background-right) 50%);
+}
+
+.wheel {
+	display: flex;
+	justify-content: center;
+	position: relative;
+	width: 100%;
+	height: calc(var(--wheel-height-percent-of-page) * 1vh);
+
+	svg {
+		display: block;
+		position: absolute;
+		width: auto;
+		height: 100%;
+	}
+
+	svg.slices {
+		border-radius: 50%;
+	}
+
+	svg.hub {
+	}
 }
