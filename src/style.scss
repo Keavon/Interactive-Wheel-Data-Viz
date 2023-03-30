@@ -6,8 +6,10 @@
 :root {
 	--wheel-height-percent-of-page: 86;
 	--hub-height-percent-of-page: 23;
-	--color-background-left: #522948;
-	--color-background-right: #0e3053;
+	--color-background-left: #522a48;
+	--color-background-left-gradient: #77aebf;
+	--color-background-right: #103054;
+	--color-background-right-gradient: #95ac3c;
 	--color-wheel-topic-1: #7fab40;
 	--color-wheel-topic-2: #a6c3c9;
 	--color-wheel-topic-3: #442968;
@@ -26,7 +28,30 @@ body {
 body {
 	display: flex;
 	align-items: center;
-	background: linear-gradient(to right, var(--color-background-left) 50%, var(--color-background-right) 50%);
+}
+
+.background {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+
+	&::before,
+	&::after {
+		content: "";
+		position: absolute;
+		width: 50%;
+		height: 100%;
+	}
+
+	&::before {
+		left: 0;
+		background: radial-gradient(circle closest-corner at center right, var(--color-background-left-gradient) 0%, var(--color-background-left) 120%);
+	}
+
+	&::after {
+		background: radial-gradient(circle closest-corner at center left, var(--color-background-right-gradient) 0%, var(--color-background-right) 120%);
+		right: 0;
+	}
 }
 
 .wheel {
