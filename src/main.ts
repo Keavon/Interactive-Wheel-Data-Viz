@@ -12,25 +12,41 @@ const SLICE_RADIUS = 120; // Slightly more than 100 so clipping can keep it circ
 const ROTATION_SHIFT = (SLICE_ANGLE * TOPICS_PER_CATEGORY) / 2 + SLICE_ANGLE / 2;
 const ANIMATION_LENGTH = 1000;
 
-let animationCategory = 0;
-let animationTimeStart = 0;
-let animationTimeStop = ANIMATION_LENGTH;
-let animationAngleStart = 0;
-let animationAngleStop = 0;
+type Animation = {
+	category: number;
+	timeStart: number;
+	timeStop: number;
+	angleStart: number;
+	angleStop: number;
+};
+const animations: Record<string, Animation | undefined> = {
+	categoryOpeningAnimation: undefined,
+	categoryClosingAnimation: undefined,
+};
 
 window.addEventListener("keydown", (e) => {
 	if (["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].includes(e.key)) {
 		const opening = e.key !== "0";
-		const index = e.key === "`" ? 0 : Number.parseInt(e.key, 10);
-		if (opening) animationCategory = index;
-		animationTimeStart = Date.now();
-		animationTimeStop = animationTimeStart + ANIMATION_LENGTH;
-		animationAngleStart = opening ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED;
-		animationAngleStop = opening ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE;
+
+		let index = e.key === "`" ? 0 : Number.parseInt(e.key, 10);
+		if (animations.categoryOpeningAnimation) index = animations.categoryOpeningAnimation.category;
+
+		animations.categoryOpeningAnimation = {
+			category: index,
+			timeStart: Date.now(),
+			timeStop: Date.now() + ANIMATION_LENGTH,
+			angleStart: opening ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED,
+			angleStop: opening ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE,
+		};
 	}
 });
 
 function init() {
+	instantiateSvgElements();
+	animate();
+}
+
+function instantiateSvgElements() {
 	const slices = document.querySelector("[data-slices]") || undefined;
 	const categorySeparators = document.querySelector("[data-category-separators]") || undefined;
 	if (!slices || !categorySeparators) return;
@@ -50,12 +66,9 @@ function init() {
 		path.setAttribute("data-category-separator", "");
 		categorySeparators.appendChild(path);
 	}
-
-	updateSlices(0, CATEGORY_ANGLE);
-	animate();
 }
 
-function updateSlices(expandedCategory: number, expandedCategoryAngle: number) {
+function updateSlices(expandedCategoryInstances: { expandedCategory: number; expandedCategoryAngle: number }[]) {
 	// Get all the slice polygon elements
 	const slices = (Array.from(document.querySelectorAll("[data-slices] [data-slice]")) || undefined) as SVGPathElement[] | undefined;
 	if (!slices) return;
@@ -64,6 +77,38 @@ function updateSlices(expandedCategory: number, expandedCategoryAngle: number) {
 	const categorySeparators = (Array.from(document.querySelectorAll("[data-category-separators] [data-category-separator]")) || undefined) as SVGPathElement[] | undefined;
 	if (!categorySeparators) return;
 
+	// Calculate the slice angles for each instance, then average the angle of each slice from all its instances
+	const instances = expandedCategoryInstances.length > 0 ? expandedCategoryInstances : [{ expandedCategory: 0, expandedCategoryAngle: CATEGORY_ANGLE }];
+	const sliceAnglesInstances = instances.map((expandedCategory) => {
+		return calculateSliceAngles(expandedCategory.expandedCategory, expandedCategory.expandedCategoryAngle);
+	});
+	const sliceAnglesSum = sliceAnglesInstances.reduce((acc, value) => {
+		return acc.map((accEntry, index) => [accEntry[0] + value[index][0], accEntry[1] + value[index][1]]);
+	});
+	const sliceAngles = sliceAnglesSum.map((value) => {
+		return [value[0] / sliceAnglesInstances.length, value[1] / sliceAnglesInstances.length] as [number, number];
+	});
+
+	// Update the angles of each slice polygon
+	slices.forEach((slice, index) => {
+		const [startAngle, stopAngle] = sliceAngles[index];
+		const conflationFix = index === slices.length - 1 ? 0 : CONFLATION_FIX_ANGLE;
+
+		// Write the vertex angles to the polygon for this slice
+		const startX = -Math.sin(startAngle) * SLICE_RADIUS;
+		const startY = -Math.cos(startAngle) * SLICE_RADIUS;
+		const stopX = -Math.sin(stopAngle + conflationFix) * SLICE_RADIUS;
+		const stopY = -Math.cos(stopAngle + conflationFix) * SLICE_RADIUS;
+		slice.setAttribute("points", `0,0 ${startX},${startY} ${stopX},${stopY}`);
+
+		// Set the category separator angle
+		if (index % TOPICS_PER_CATEGORY === 0) {
+			categorySeparators[index / TOPICS_PER_CATEGORY].setAttribute("transform", `rotate(${(-startAngle / TAU) * 360 + 180})`);
+		}
+	});
+}
+
+function calculateSliceAngles(expandedCategory: number, expandedCategoryAngle: number): [number, number][] {
 	// Angle of expanded and shrunk slices
 	const expandedSliceAngle = (expandedCategoryAngle / CATEGORY_ANGLE) * SLICE_ANGLE;
 	const shrunkSliceAngle = (TAU - expandedSliceAngle * TOPICS_PER_CATEGORY) / (TOTAL_TOPICS - TOPICS_PER_CATEGORY);
@@ -105,39 +150,30 @@ function updateSlices(expandedCategory: number, expandedCategoryAngle: number) {
 	const stopAngleDifference = expandedRangeStopAngleWhenExpanded - expandedRangeStopAngleWhenUnexpanded;
 	const angleOffsetToRecenter = -startAngleDifference - (stopAngleDifference - startAngleDifference) / 2;
 
-	// Update the angles of each slice polygon
-	slices.forEach((slice, index) => {
-		const conflationFix = index === slices.length - 1 ? 0 : CONFLATION_FIX_ANGLE;
-
+	return new Array(TOTAL_TOPICS).fill(undefined).map((_, index) => {
 		// Pick the start and stop angle for this slice
-		const startStopAngle = sliceStartAndStopAngle(index);
-		const startAngle = ROTATION_SHIFT + startStopAngle[0] + angleOffsetToRecenter;
-		const stopAngle = ROTATION_SHIFT + startStopAngle[1] + angleOffsetToRecenter;
-
-		// Write the vertex angles to the polygon for this slice
-		const startX = -Math.sin(startAngle) * SLICE_RADIUS;
-		const startY = -Math.cos(startAngle) * SLICE_RADIUS;
-		const stopX = -Math.sin(stopAngle + conflationFix) * SLICE_RADIUS;
-		const stopY = -Math.cos(stopAngle + conflationFix) * SLICE_RADIUS;
-		slice.setAttribute("points", `0,0 ${startX},${startY} ${stopX},${stopY}`);
-
-		// Set the category separator angle
-		if (index % TOPICS_PER_CATEGORY === 0) {
-			categorySeparators[index / TOPICS_PER_CATEGORY].setAttribute("transform", `rotate(${(-startAngle / TAU) * 360 + 180})`);
-		}
+		const [start, stop] = sliceStartAndStopAngle(index);
+		const startAngle = start + ROTATION_SHIFT + angleOffsetToRecenter;
+		const stopAngle = stop + ROTATION_SHIFT + angleOffsetToRecenter;
+		return [startAngle, stopAngle];
 	});
 }
 
-// const ease = (x: number) => 1 - (1 - x) * (1 - x);
-const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10);
-
 function animate() {
-	let animationFraction = (Date.now() - animationTimeStart) / (animationTimeStop - animationTimeStart);
-	if (animationFraction < 0) animationFraction = 0;
-	if (animationFraction > 1) animationFraction = 1;
+	const clamp = (x: number) => Math.max(Math.min(x, 1), 0);
+	const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10);
+	// const ease = (x: number) => 1 - (1 - x) * (1 - x);
 
-	const angle = animationAngleStart + (animationAngleStop - animationAngleStart) * smootherstep(animationFraction);
-	updateSlices(animationCategory, angle);
+	const validAnimations = Object.values(animations).filter((animation) => animation) as Animation[];
+	const animationInstances = validAnimations.map((animation) => {
+		// Animation time from 0 to 1, clamped at either end if paused
+		const animationFraction = clamp((Date.now() - animation.timeStart) / (animation.timeStop - animation.timeStart));
+
+		const angle = animation.angleStart + (animation.angleStop - animation.angleStart) * smootherstep(animationFraction);
+		return { expandedCategory: animation.category, expandedCategoryAngle: angle };
+	});
+
+	updateSlices(animationInstances);
 
 	requestAnimationFrame(animate);
 }
