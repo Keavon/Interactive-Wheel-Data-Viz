@@ -5,26 +5,32 @@ const CATEGORIES = 12;
 const TOPICS_PER_CATEGORY = 6;
 const TOTAL_TOPICS = CATEGORIES * TOPICS_PER_CATEGORY;
 const CATEGORY_ANGLE = TAU / CATEGORIES;
+const CATEGORY_ANGLE_EXPANDED = (96 / 360) * TAU;
 const SLICE_ANGLE = TAU / TOTAL_TOPICS;
 const CONFLATION_FIX_ANGLE = 0.2 / TAU;
 const SLICE_RADIUS = 120; // Slightly more than 100 so clipping can keep it circular
 const ROTATION_SHIFT = (SLICE_ANGLE * TOPICS_PER_CATEGORY) / 2 + SLICE_ANGLE / 2;
+const ANIMATION_LENGTH = 1000;
 
-let testAngle = 30;
-const testCategory = 3;
+let animationCategory = 0;
+let animationTimeStart = 0;
+let animationTimeStop = ANIMATION_LENGTH;
+let animationAngleStart = 0;
+let animationAngleStop = 0;
 
 window.addEventListener("keydown", (e) => {
-	if (e.key === "ArrowUp") {
-		testAngle += 0.5;
-		updateSlices(testCategory, (testAngle / 360) * TAU);
-	}
-	if (e.key === "ArrowDown") {
-		testAngle -= 0.5;
-		updateSlices(testCategory, (testAngle / 360) * TAU);
+	if (["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].includes(e.key)) {
+		const opening = e.key !== "0";
+		const index = e.key === "`" ? 0 : Number.parseInt(e.key, 10);
+		if (opening) animationCategory = index;
+		animationTimeStart = Date.now();
+		animationTimeStop = animationTimeStart + ANIMATION_LENGTH;
+		animationAngleStart = opening ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED;
+		animationAngleStop = opening ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE;
 	}
 });
 
-function init(): void {
+function init() {
 	const slices = document.querySelector("[data-slices]") || undefined;
 	const categorySeparators = document.querySelector("[data-category-separators]") || undefined;
 	if (!slices || !categorySeparators) return;
@@ -46,9 +52,10 @@ function init(): void {
 	}
 
 	updateSlices(0, CATEGORY_ANGLE);
+	animate();
 }
 
-function updateSlices(expandedCategory: number, expandedCategoryAngle: number): void {
+function updateSlices(expandedCategory: number, expandedCategoryAngle: number) {
 	// Get all the slice polygon elements
 	const slices = (Array.from(document.querySelectorAll("[data-slices] [data-slice]")) || undefined) as SVGPathElement[] | undefined;
 	if (!slices) return;
@@ -119,6 +126,20 @@ function updateSlices(expandedCategory: number, expandedCategoryAngle: number): 
 			categorySeparators[index / TOPICS_PER_CATEGORY].setAttribute("transform", `rotate(${(-startAngle / TAU) * 360 + 180})`);
 		}
 	});
+}
+
+// const ease = (x: number) => 1 - (1 - x) * (1 - x);
+const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10);
+
+function animate() {
+	let animationFraction = (Date.now() - animationTimeStart) / (animationTimeStop - animationTimeStart);
+	if (animationFraction < 0) animationFraction = 0;
+	if (animationFraction > 1) animationFraction = 1;
+
+	const angle = animationAngleStart + (animationAngleStop - animationAngleStart) * smootherstep(animationFraction);
+	updateSlices(animationCategory, angle);
+
+	requestAnimationFrame(animate);
 }
 
 document.addEventListener("DOMContentLoaded", init);

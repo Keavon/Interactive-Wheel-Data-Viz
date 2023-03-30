@@ -58,7 +58,6 @@ module.exports = {
 		"@typescript-eslint/camelcase": "off",
 		"@typescript-eslint/no-use-before-define": "off",
 		"@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", ignoreRestSiblings: true }],
-		"@typescript-eslint/explicit-function-return-type": "error",
 		"@typescript-eslint/consistent-type-imports": "error",
 		"@typescript-eslint/consistent-type-definitions": ["error", "type"],
 		"@typescript-eslint/consistent-type-assertions": ["error", { assertionStyle: "as", objectLiteralTypeAssertions: "never" }],
