@@ -45,6 +45,11 @@ body {
 
 	svg.slices {
 		border-radius: 50%;
+		overflow: hidden;
+	}
+
+	svg.category-separators {
+		overflow: visible;
 	}
 
 	svg.hub {
