@@ -1,7 +1,8 @@
 import "./style.scss";
 
 const TAU = Math.PI * 2;
-const CATEGORIES = 12;
+const CATEGORIES_LIST = ["Impact", "Emotion", "Immersion", "Embodiment", "Flow", "Cognition", "Enjoyment", "Time", "Scale", "Space", "Point of View", "See, Hear, Act"].reverse();
+const CATEGORIES = CATEGORIES_LIST.length;
 const TOPICS_PER_CATEGORY = 6;
 const TOTAL_TOPICS = CATEGORIES * TOPICS_PER_CATEGORY;
 const CATEGORY_ANGLE = TAU / CATEGORIES;
@@ -11,6 +12,7 @@ const CONFLATION_FIX_ANGLE = 0.2 / TAU;
 const SLICE_RADIUS = 120; // Slightly more than 100 so clipping can keep it circular
 const ROTATION_SHIFT = (SLICE_ANGLE * TOPICS_PER_CATEGORY) / 2 + SLICE_ANGLE / 2;
 const ANIMATION_LENGTH = 1000;
+const ANIMATION_LENGTH_CLOSE = ANIMATION_LENGTH / 2;
 
 type Animation = {
 	category: number;
@@ -24,23 +26,6 @@ const animations: Record<string, Animation | undefined> = {
 	categoryClosingAnimation: undefined,
 };
 
-window.addEventListener("keydown", (e) => {
-	if (["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].includes(e.key)) {
-		const opening = e.key !== "0";
-
-		let index = e.key === "`" ? 0 : Number.parseInt(e.key, 10);
-		if (animations.categoryOpeningAnimation) index = animations.categoryOpeningAnimation.category;
-
-		animations.categoryOpeningAnimation = {
-			category: index,
-			timeStart: Date.now(),
-			timeStop: Date.now() + ANIMATION_LENGTH,
-			angleStart: opening ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED,
-			angleStop: opening ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE,
-		};
-	}
-});
-
 function init() {
 	instantiateSvgElements();
 	animate();
@@ -48,8 +33,14 @@ function init() {
 
 function instantiateSvgElements() {
 	const slices = document.querySelector("[data-slices]") || undefined;
+	slices?.addEventListener("click", onClickSlice);
+	if (!slices) return;
+
 	const categorySeparators = document.querySelector("[data-category-separators]") || undefined;
-	if (!slices || !categorySeparators) return;
+	if (!categorySeparators) return;
+
+	const categoryLabels = document.querySelector("[data-category-labels]") || undefined;
+	if (!categoryLabels) return;
 
 	for (let i = 0; i < TOTAL_TOPICS; i += 1) {
 		const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
@@ -66,6 +57,15 @@ function instantiateSvgElements() {
 		path.setAttribute("data-category-separator", "");
 		categorySeparators.appendChild(path);
 	}
+
+	CATEGORIES_LIST.forEach((category) => {
+		const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+		text.setAttribute("x", "0");
+		text.setAttribute("y", "-103");
+		text.setAttribute("data-category-label", "");
+		text.innerHTML = category;
+		categoryLabels.appendChild(text);
+	});
 }
 
 function updateSlices(expandedCategoryInstances: { expandedCategory: number; expandedCategoryAngle: number }[]) {
@@ -76,6 +76,10 @@ function updateSlices(expandedCategoryInstances: { expandedCategory: number; exp
 	// Get all the category separator elements
 	const categorySeparators = (Array.from(document.querySelectorAll("[data-category-separators] [data-category-separator]")) || undefined) as SVGPathElement[] | undefined;
 	if (!categorySeparators) return;
+
+	// Get all the category label elements
+	const categoryLabels = (Array.from(document.querySelectorAll("[data-category-labels] [data-category-label]")) || undefined) as SVGPathElement[] | undefined;
+	if (!categoryLabels) return;
 
 	// Calculate the slice angles for each instance, then average the angle of each slice from all its instances
 	const instances = expandedCategoryInstances.length > 0 ? expandedCategoryInstances : [{ expandedCategory: 0, expandedCategoryAngle: CATEGORY_ANGLE }];
@@ -104,6 +108,11 @@ function updateSlices(expandedCategoryInstances: { expandedCategory: number; exp
 		// Set the category separator angle
 		if (index % TOPICS_PER_CATEGORY === 0) {
 			categorySeparators[index / TOPICS_PER_CATEGORY].setAttribute("transform", `rotate(${(-startAngle / TAU) * 360 + 180})`);
+		}
+
+		// Set the category label angle
+		if ((index + TOPICS_PER_CATEGORY / 2) % TOPICS_PER_CATEGORY === 0) {
+			categoryLabels[Math.floor(index / TOPICS_PER_CATEGORY)].setAttribute("transform", `rotate(${(-startAngle / TAU) * 360})`);
 		}
 	});
 }
@@ -176,6 +185,51 @@ function animate() {
 	updateSlices(animationInstances);
 
 	requestAnimationFrame(animate);
+}
+
+function triggerCategoryAnimation(index: number) {
+	const angleStop = animations.categoryOpeningAnimation?.angleStop;
+	const timeStart = animations.categoryOpeningAnimation?.timeStart;
+	const currentlyOpenIndexCategory = timeStart && Date.now() >= timeStart && animations.categoryOpeningAnimation?.category;
+	const currentlyOpenIndex = typeof currentlyOpenIndexCategory === "number" ? currentlyOpenIndexCategory : undefined;
+	const closeFirst = currentlyOpenIndex !== undefined && angleStop !== CATEGORY_ANGLE;
+
+	const open = () => {
+		animations.categoryOpeningAnimation = {
+			category: index,
+			timeStart: Date.now(),
+			timeStop: Date.now() + ANIMATION_LENGTH,
+			angleStart: CATEGORY_ANGLE,
+			angleStop: CATEGORY_ANGLE_EXPANDED,
+		};
+	};
+
+	if (closeFirst) {
+		// Close
+		animations.categoryOpeningAnimation = {
+			category: currentlyOpenIndex,
+			timeStart: Date.now(),
+			timeStop: Date.now() + ANIMATION_LENGTH_CLOSE,
+			angleStart: CATEGORY_ANGLE_EXPANDED, // open ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED,
+			angleStop: CATEGORY_ANGLE, // open ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE,
+		};
+
+		// Open
+		if (index !== currentlyOpenIndex) {
+			setTimeout(open, ANIMATION_LENGTH_CLOSE);
+		}
+	} else {
+		// Open
+		open();
+	}
+}
+
+function onClickSlice(e: Event) {
+	const slice = e.target as SVGPolygonElement;
+	const sliceIndex = Array.from(slice.parentElement!.children).indexOf(slice);
+	const categoryIndex = Math.floor(sliceIndex / TOPICS_PER_CATEGORY);
+
+	triggerCategoryAnimation(categoryIndex);
 }
 
 document.addEventListener("DOMContentLoaded", init);

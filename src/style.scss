@@ -1,3 +1,17 @@
+@font-face {
+	font-family: "Futura Condensed PT Medium";
+	font-style: normal;
+	font-weight: normal;
+	src: local("Futura Condensed PT Medium"), url("fonts/futura-condensed-pt-medium.woff") format("woff");
+}
+
+@font-face {
+	font-family: "Futura Condensed PT Medium Oblique";
+	font-style: italic;
+	font-weight: normal;
+	src: local("Futura Condensed PT Medium Oblique"), url("fonts/futura-condensed-pt-medium-oblique.woff") format("woff");
+}
+
 * {
 	min-width: 0;
 	min-height: 0;
@@ -28,12 +42,19 @@ body {
 body {
 	display: flex;
 	align-items: center;
+	font-family: "Futura Condensed PT Medium", Arial, sans-serif;
+	font-size: 1.5vh;
+}
+
+svg text {
+	fill: white;
 }
 
 .background {
 	position: absolute;
 	width: 100%;
 	height: 100%;
+	z-index: -1;
 
 	&::before,
 	&::after {
@@ -54,6 +75,61 @@ body {
 	}
 }
 
+.perception-axis-label {
+	margin: auto;
+	left: 0;
+	right: 0;
+	position: absolute;
+	display: flex;
+	width: 0;
+	justify-content: space-between;
+
+	div {
+		position: absolute;
+		padding: 8px 24px;
+		border-radius: 16px;
+		font-size: 1.75em;
+		line-height: 1.2;
+		color: #b3b4b4;
+		text-align: center;
+		transform: translateY(-50%);
+
+		&:first-child {
+			right: calc(var(--wheel-height-percent-of-page) / 2 * 1vh * 1.15);
+			background: var(--color-background-left);
+
+			&::after {
+				content: "";
+				right: -100%;
+				transform: translateX(50%) scale(200%);
+			}
+		}
+
+		&:last-child {
+			left: calc(var(--wheel-height-percent-of-page) / 2 * 1vh * 1.15);
+			background: var(--color-background-right);
+
+			&::before {
+				content: "";
+				left: -100%;
+				transform: translateX(-50%) scale(200%);
+			}
+		}
+
+		&::before,
+		&::after {
+			display: block;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			margin: auto;
+			width: 100%;
+			height: 0;
+			border-top: 1px dotted #9c9fa1;
+		}
+	}
+}
+
 .wheel {
 	display: flex;
 	justify-content: center;
@@ -66,17 +142,48 @@ body {
 		position: absolute;
 		width: auto;
 		height: 100%;
-	}
-
-	svg.slices {
-		border-radius: 50%;
-		overflow: hidden;
-	}
-
-	svg.category-separators {
 		overflow: visible;
-	}
 
-	svg.hub {
+		text {
+			user-select: none;
+			pointer-events: none;
+		}
+
+		.slices {
+			border-radius: 50%;
+		}
+
+		.category-separators {
+			overflow: visible;
+		}
+
+		.category-labels {
+			text-anchor: middle;
+			font-size: 0.4em;
+		}
+
+		.hub {
+			text {
+				text-anchor: middle;
+				font-size: 0.5em;
+			}
+		}
+
+		.rings {
+			circle {
+				opacity: 0.15;
+				fill: none;
+				stroke: white;
+				stroke-width: 0.02em;
+			}
+
+			text {
+				font-size: 0.25em;
+
+				+ text {
+					text-anchor: end;
+				}
+			}
+		}
 	}
 }

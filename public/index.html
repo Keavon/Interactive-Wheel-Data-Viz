@@ -7,11 +7,60 @@
 	</head>
 	<body>
 		<div class="background"></div>
+		<div class="perception-axis-label">
+			<div>Sensory<br />Perception</div>
+			<div>Psychological<br />Perception</div>
+		</div>
 		<div class="wheel">
-			<svg class="slices" viewBox="-100 -100 200 200" data-slices></svg>
-			<svg class="category-separators" viewBox="-100 -100 200 200" data-category-separators></svg>
-			<svg class="hub" viewBox="-100 -100 200 200" data-hub>
-				<circle r="27" />
+			<svg viewBox="-100 -100 200 200">
+				<defs>
+					<clipPath id="circle-clipping-mask">
+						<circle r="100" />
+					</clipPath>
+				</defs>
+				<g class="slices" clip-path="url(#circle-clipping-mask)" data-slices></g>
+				<g class="category-separators" data-category-separators></g>
+				<g class="category-labels" data-category-labels></g>
+				<g class="hub" data-hub>
+					<circle r="28" />
+					<text dominant-baseline="middle" x="0" y="-1.1em">Design of VR</text>
+					<text dominant-baseline="middle" x="0" y="0">for Inclusion</text>
+					<!-- <text dominant-baseline="middle" x="0" y="1.21em">Reeducated</text> -->
+				</g>
+				<g class="rings" data-rings>
+					<circle r="100" />
+					<circle r="94" />
+					<circle r="88" />
+					<text dominant-baseline="middle" x="-2px" y="-88px">— 10</text>
+					<text dominant-baseline="middle" x="2px" y="88px">10 —</text>
+					<circle r="82" />
+					<text dominant-baseline="middle" x="-2px" y="-82px">— 9</text>
+					<text dominant-baseline="middle" x="2px" y="82px">9 —</text>
+					<circle r="76" />
+					<text dominant-baseline="middle" x="-2px" y="-76px">— 8</text>
+					<text dominant-baseline="middle" x="2px" y="76px">8 —</text>
+					<circle r="70" />
+					<text dominant-baseline="middle" x="-2px" y="-70px">— 7</text>
+					<text dominant-baseline="middle" x="2px" y="70px">7 —</text>
+					<circle r="64" />
+					<text dominant-baseline="middle" x="-2px" y="-64px">— 6</text>
+					<text dominant-baseline="middle" x="2px" y="64px">6 —</text>
+					<circle r="58" />
+					<text dominant-baseline="middle" x="-2px" y="-58px">— 5</text>
+					<text dominant-baseline="middle" x="2px" y="58px">5 —</text>
+					<circle r="52" />
+					<text dominant-baseline="middle" x="-2px" y="-52px">— 4</text>
+					<text dominant-baseline="middle" x="2px" y="52px">4 —</text>
+					<circle r="46" />
+					<text dominant-baseline="middle" x="-2px" y="-46px">— 3</text>
+					<text dominant-baseline="middle" x="2px" y="46px">3 —</text>
+					<circle r="40" />
+					<text dominant-baseline="middle" x="-2px" y="-40px">— 2</text>
+					<text dominant-baseline="middle" x="2px" y="40px">2 —</text>
+					<circle r="34" />
+					<text dominant-baseline="middle" x="-2px" y="-34px">— 1</text>
+					<text dominant-baseline="middle" x="2px" y="34px">1 —</text>
+				</g>
 			</svg>
 		</div>
 	</body>
