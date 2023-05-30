@@ -154,7 +154,7 @@ svg text {
 				top: 0.5rem;
 				left: calc(-1 * (2.5rem + 1rem - 0.5rem));
 				box-shadow: 0 0 0 0rem white, 0 0 0 0rem var(--color);
-				transition: box-shadow 0.25s ease-in-out;
+				transition: box-shadow 0.5s ease-in-out;
 			}
 
 			&.active::before {
@@ -190,6 +190,7 @@ svg text {
 		color: var(--color-body-text);
 		text-align: center;
 		transform: translateY(-50%);
+		user-select: none;
 		--gap-from-wheel: calc(1vh * var(--wheel-height-percent-of-page) / 2 * 1.125);
 
 		&.left {
@@ -239,6 +240,7 @@ svg text {
 		display: flex;
 		flex-direction: column;
 		position: absolute;
+		user-select: none;
 		color: var(--color-body-text);
 		line-height: 1.1;
 		margin-top: 4rem;
@@ -335,6 +337,45 @@ svg text {
 				text-anchor: middle;
 				font-size: 0.45rem;
 			}
+
+			.experience-name {
+				fill: var(--experience-color);
+				opacity: 0;
+				transition: opacity 0.5s ease-in-out;
+
+				.experience-stats-open & {
+					opacity: 1;
+				}
+			}
+		}
+
+		.experience-stats {
+			fill: white;
+			stroke: var(--experience-color);
+			stroke-width: 0.125rem;
+
+			circle {
+				r: 24;
+				transition: r 0.5s ease-in-out;
+			}
+
+			line {
+				stroke-width: 0.15rem;
+				stroke-linecap: round;
+				stroke-dasharray: 60 1000;
+				stroke-dashoffset: 60;
+				transition: stroke-dashoffset 0.5s ease-in-out;
+			}
+
+			.experience-stats-open & {
+				circle {
+					r: 88;
+				}
+
+				line {
+					stroke-dashoffset: calc(60 - 28 - min(var(--stat-value) * 6 - 1.5, 58));
+				}
+			}
 		}
 
 		.rings {
@@ -343,13 +384,30 @@ svg text {
 				fill: none;
 				stroke: white;
 				stroke-width: 0.02rem;
+				transition: stroke 0.5s ease-in-out, opacity 0.5s ease-in-out;
 			}
 
 			text {
 				font-size: 0.25rem;
+				fill: white;
+				transition: fill 0.5s ease-in-out;
 
 				+ text {
 					text-anchor: end;
+				}
+			}
+
+			.experience-stats-open & {
+				circle {
+					stroke: black;
+
+					&.ring-10 {
+						opacity: 0;
+					}
+				}
+
+				text {
+					fill: black;
 				}
 			}
 		}

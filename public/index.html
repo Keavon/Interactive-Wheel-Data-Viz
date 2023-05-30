@@ -11,29 +11,29 @@
 			<span class="instructions">Click on color-coded experiences on wheel and dots:</span>
 			<div class="column left">
 				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-1)">
-					<span>Reeducated</span>
+					<span data-experience-title>Reeducated</span>
 					<span>Religion. Lead authors: Artists</span>
 				</button>
 				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-2)">
-					<span>The Book of Distance</span>
+					<span data-experience-title>The Book of Distance</span>
 					<span>Nationality/Culture. Lead author: Artist</span>
 				</button>
 				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-3)">
-					<span>Another Dream</span>
+					<span data-experience-title>Another Dream</span>
 					<span>Immigration + LGBT.<br />Lead authors: Artists</span>
 				</button>
 			</div>
 			<div class="column right">
 				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-4)">
-					<span>I am a Man</span>
+					<span data-experience-title>I am a Man</span>
 					<span>Race. Lead author: Artist</span>
 				</button>
 				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-5)">
-					<span>1000 Cut Journey</span>
+					<span data-experience-title>1000 Cut Journey</span>
 					<span>Race. Lead authors: Psychologists</span>
 				</button>
 				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-6)">
-					<span>Becoming Homeless</span>
+					<span data-experience-title>Becoming Homeless</span>
 					<span>Socio-economic Status.<br />Lead authors: Psychologists</span>
 				</button>
 			</div>
@@ -112,18 +112,21 @@
 					</clipPath>
 				</defs>
 				<g class="slices" clip-path="url(#circle-clipping-mask)" data-slices></g>
+				<g class="experience-stats" data-experience-stats>
+					<circle />
+				</g>
 				<g class="category-separators" data-category-separators></g>
 				<g class="category-labels" data-category-labels></g>
 				<g class="hub" data-hub>
 					<circle r="28" />
 					<text dominant-baseline="middle" x="0" y="-1.1em">Design of VR</text>
 					<text dominant-baseline="middle" x="0" y="0">for Inclusion</text>
-					<!-- <text dominant-baseline="middle" x="0" y="1.21em">Reeducated</text> -->
+					<text dominant-baseline="middle" x="0" y="1.21em" class="experience-name" data-experience-name></text>
 				</g>
 				<g class="rings" data-rings>
 					<circle r="100" />
 					<circle r="94" />
-					<circle r="88" />
+					<circle r="88" class="ring-10" />
 					<text dominant-baseline="middle" x="-2px" y="-88px">— 10</text>
 					<text dominant-baseline="middle" x="2px" y="88px">10 —</text>
 					<circle r="82" />

@@ -2,6 +2,7 @@ import "./style.scss";
 
 const TAU = Math.PI * 2;
 const CATEGORIES_LIST = ["Impact", "Emotion", "Immersion", "Embodiment", "Flow", "Cognition", "Enjoyment", "Time", "Scale", "Space", "Point of View", "See, Hear, Act"].reverse();
+const EXPERIENCES_STATS = [[10, 9, 10, 5, 10, 9, 10, 7, 9, 9, 9, 10]];
 const CATEGORIES = CATEGORIES_LIST.length;
 const TOPICS_PER_CATEGORY = 6;
 const TOTAL_TOPICS = CATEGORIES * TOPICS_PER_CATEGORY;
@@ -26,6 +27,8 @@ const animations: Record<string, Animation | undefined> = {
 	categoryClosingAnimation: undefined,
 };
 
+let openExperience;
+
 function init() {
 	instantiateSvgElements();
 	animate();
@@ -39,6 +42,9 @@ function instantiateSvgElements() {
 
 	const categorySeparators = document.querySelector("[data-category-separators]") || undefined;
 	if (!categorySeparators) return;
+
+	const experienceStats = document.querySelector("[data-experience-stats]") || undefined;
+	if (!experienceStats) return;
 
 	const categoryLabels = document.querySelector("[data-category-labels]") || undefined;
 	if (!categoryLabels) return;
@@ -57,6 +63,18 @@ function instantiateSvgElements() {
 		path.setAttribute("fill", "black");
 		path.setAttribute("data-category-separator", "");
 		categorySeparators.appendChild(path);
+	}
+
+	for (let i = 0; i < CATEGORIES; i += 1) {
+		const statLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+		statLine.setAttribute("x1", "0");
+		statLine.setAttribute("y1", "0");
+		statLine.setAttribute("x2", "0");
+		statLine.setAttribute("y2", "-88");
+		statLine.setAttribute("data-experience-stat", "");
+		statLine.setAttribute("transform", `rotate(${(i / CATEGORIES) * 360})`);
+		statLine.style.setProperty("--stat-value", `${EXPERIENCES_STATS[0][i]}`);
+		experienceStats.appendChild(statLine);
 	}
 
 	CATEGORIES_LIST.forEach((category) => {
@@ -241,6 +259,21 @@ function addExperienceButtonListeners() {
 			experienceButtons.forEach((otherButton) => {
 				if (otherButton !== button) otherButton.classList.remove("active");
 			});
+
+			if (button.classList.contains("active")) {
+				openExperience = Array.from(document.querySelectorAll("[data-experience-button]")).indexOf(button);
+
+				document.body.classList.add("experience-stats-open");
+				document.body.style.setProperty("--experience-color", `var(--color-wheel-topic-${openExperience + 1})`);
+
+				const experienceNameLabel = document.querySelector("[data-experience-name]");
+				const experienceTitle = document.querySelectorAll("[data-experience-button] [data-experience-title]")?.[openExperience].innerHTML;
+				if (experienceNameLabel && experienceTitle) experienceNameLabel.innerHTML = experienceTitle;
+			} else {
+				openExperience = undefined;
+
+				document.body.classList.remove("experience-stats-open");
+			}
 		});
 	});
 }
