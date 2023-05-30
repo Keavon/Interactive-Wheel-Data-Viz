@@ -20,6 +20,7 @@
 :root {
 	--wheel-height-percent-of-page: 86;
 	--hub-height-percent-of-page: 23;
+	--color-body-text: #b3b4b4;
 	--color-background-left: #522a48;
 	--color-background-left-gradient: #77aebf;
 	--color-background-right: #103054;
@@ -37,13 +38,13 @@ body {
 	width: 100%;
 	height: 100%;
 	margin: 0;
+	font-size: 1.5vh;
 }
 
 body {
 	display: flex;
 	align-items: center;
 	font-family: "Futura Condensed PT Medium", Arial, sans-serif;
-	font-size: 1.5vh;
 }
 
 svg text {
@@ -75,27 +76,124 @@ svg text {
 	}
 }
 
-.perception-axis-label {
+.top-dot-buttons {
+	position: absolute;
 	margin: auto;
+	width: 0;
 	left: 0;
 	right: 0;
-	position: absolute;
+	top: 0;
+	--min-gap-from-wheel: calc(-1vh * var(--wheel-height-percent-of-page) / 2 * 1.5);
+	--gap-from-wheel: min(calc(-50vw * 0.95), var(--min-gap-from-wheel));
+
+	.instructions {
+		white-space: nowrap;
+		position: absolute;
+		color: var(--color-body-text);
+		font-size: 1.5rem;
+		left: var(--gap-from-wheel);
+		margin-top: 1rem;
+	}
+
+	.column {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		color: var(--color-body-text);
+		line-height: 1.1;
+		margin-top: 4rem;
+
+		.experience {
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			padding: 0;
+			margin: 0;
+			border: 0;
+			padding: 0.5rem;
+			border-radius: 0.5rem;
+			margin-left: calc(2.5rem + 1rem - 0.5rem);
+			width: fit-content;
+			cursor: pointer;
+			background: none;
+			font-family: inherit;
+			font-size: inherit;
+			font-weight: inherit;
+			line-height: inherit;
+			color: inherit;
+			transition: background-color 0.1s ease-out;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.1);
+			}
+
+			&:first-of-type {
+				margin-top: -0.5rem;
+			}
+
+			span {
+				white-space: nowrap;
+				font-size: 1.33rem;
+				text-align: left;
+
+				&:first-of-type {
+					color: white;
+					font-size: 1.5rem;
+				}
+			}
+
+			&::before {
+				content: "";
+				width: 2.5rem;
+				height: 2.5rem;
+				border: 0.1rem solid white;
+				box-sizing: border-box;
+				background: var(--color);
+				border-radius: 50%;
+				position: absolute;
+				top: 0.5rem;
+				left: calc(-1 * (2.5rem + 1rem - 0.5rem));
+				box-shadow: 0 0 0 0rem white, 0 0 0 0rem var(--color);
+				transition: box-shadow 0.25s ease-in-out;
+			}
+
+			&.active::before {
+				box-shadow: 0 0 0 0.4rem white, 0 0 0 0.5rem var(--color);
+			}
+		}
+
+		&.left {
+			left: var(--gap-from-wheel);
+		}
+
+		&.right {
+			right: var(--gap-from-wheel);
+		}
+	}
+}
+
+.perception-axis-label {
 	display: flex;
-	width: 0;
 	justify-content: space-between;
+	position: absolute;
+	margin: auto;
+	width: 0;
+	left: 0;
+	right: 0;
 
 	div {
 		position: absolute;
-		padding: 8px 24px;
+		padding: 4px 16px;
 		border-radius: 16px;
-		font-size: 1.75em;
+		font-size: 1.5rem;
 		line-height: 1.2;
-		color: #b3b4b4;
+		color: var(--color-body-text);
 		text-align: center;
 		transform: translateY(-50%);
+		--gap-from-wheel: calc(1vh * var(--wheel-height-percent-of-page) / 2 * 1.125);
 
-		&:first-child {
-			right: calc(var(--wheel-height-percent-of-page) / 2 * 1vh * 1.15);
+		&.left {
+			right: var(--gap-from-wheel);
 			background: var(--color-background-left);
 
 			&::after {
@@ -105,8 +203,8 @@ svg text {
 			}
 		}
 
-		&:last-child {
-			left: calc(var(--wheel-height-percent-of-page) / 2 * 1vh * 1.15);
+		&.right {
+			left: var(--gap-from-wheel);
 			background: var(--color-background-right);
 
 			&::before {
@@ -130,10 +228,79 @@ svg text {
 	}
 }
 
+.bottom-info-labels {
+	position: absolute;
+	margin: auto;
+	width: 0;
+	left: 0;
+	right: 0;
+
+	.column {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		color: var(--color-body-text);
+		line-height: 1.1;
+		margin-top: 4rem;
+		--min-gap-from-wheel: calc(-1vh * var(--wheel-height-percent-of-page) / 2 * 1.5);
+		--gap-from-wheel: min(calc(-50vw * 0.95), var(--min-gap-from-wheel));
+
+		.category {
+			display: inline-block;
+			font-size: 0;
+
+			+ .category {
+				margin-top: 1rem;
+			}
+
+			span {
+				white-space: nowrap;
+				font-size: 1.33rem;
+
+				&:first-of-type {
+					color: white;
+					margin-right: 0.5rem;
+				}
+			}
+
+			&.side-by-side {
+				display: flex;
+
+				span:first-of-type {
+					display: flex;
+					flex-direction: column;
+					justify-content: space-between;
+
+					span {
+						display: block;
+					}
+				}
+
+				svg {
+					align-self: center;
+					fill: rgba(255, 255, 255, 0.4);
+					height: 5.125rem;
+					margin-left: -1rem;
+					margin-right: 0.25rem;
+				}
+			}
+		}
+
+		&.left {
+			left: var(--gap-from-wheel);
+		}
+
+		&.right {
+			right: var(--gap-from-wheel);
+		}
+	}
+}
+
 .wheel {
 	display: flex;
 	justify-content: center;
 	position: relative;
+	pointer-events: none;
 	width: 100%;
 	height: calc(var(--wheel-height-percent-of-page) * 1vh);
 
@@ -151,6 +318,7 @@ svg text {
 
 		.slices {
 			border-radius: 50%;
+			pointer-events: auto;
 		}
 
 		.category-separators {
@@ -159,13 +327,13 @@ svg text {
 
 		.category-labels {
 			text-anchor: middle;
-			font-size: 0.4em;
+			font-size: 0.4rem;
 		}
 
 		.hub {
 			text {
 				text-anchor: middle;
-				font-size: 0.5em;
+				font-size: 0.45rem;
 			}
 		}
 
@@ -174,11 +342,11 @@ svg text {
 				opacity: 0.15;
 				fill: none;
 				stroke: white;
-				stroke-width: 0.02em;
+				stroke-width: 0.02rem;
 			}
 
 			text {
-				font-size: 0.25em;
+				font-size: 0.25rem;
 
 				+ text {
 					text-anchor: end;

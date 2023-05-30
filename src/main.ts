@@ -29,6 +29,7 @@ const animations: Record<string, Animation | undefined> = {
 function init() {
 	instantiateSvgElements();
 	animate();
+	addExperienceButtonListeners();
 }
 
 function instantiateSvgElements() {
@@ -230,6 +231,18 @@ function onClickSlice(e: Event) {
 	const categoryIndex = Math.floor(sliceIndex / TOPICS_PER_CATEGORY);
 
 	triggerCategoryAnimation(categoryIndex);
+}
+
+function addExperienceButtonListeners() {
+	const experienceButtons = document.querySelectorAll("[data-experience-button]");
+	experienceButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			button.classList.toggle("active");
+			experienceButtons.forEach((otherButton) => {
+				if (otherButton !== button) otherButton.classList.remove("active");
+			});
+		});
+	});
 }
 
 document.addEventListener("DOMContentLoaded", init);
