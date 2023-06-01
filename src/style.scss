@@ -277,14 +277,6 @@ svg text {
 						display: block;
 					}
 				}
-
-				svg {
-					align-self: center;
-					fill: rgba(255, 255, 255, 0.4);
-					height: 5.125rem;
-					margin-left: -1rem;
-					margin-right: 0.25rem;
-				}
 			}
 		}
 
@@ -339,11 +331,11 @@ svg text {
 			}
 
 			.experience-name {
-				fill: var(--experience-color);
+				fill: var(--color);
 				opacity: 0;
 				transition: opacity 0.5s ease-in-out;
 
-				.experience-stats-open & {
+				&.open {
 					opacity: 1;
 				}
 			}
@@ -353,10 +345,12 @@ svg text {
 			fill: white;
 			stroke: var(--experience-color);
 			stroke-width: 0.125rem;
+			transition: stroke 0.5s ease-in-out;
 
 			circle {
 				r: 24;
 				transition: r 0.5s ease-in-out;
+				filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
 			}
 
 			line {
@@ -367,13 +361,26 @@ svg text {
 				transition: stroke-dashoffset 0.5s ease-in-out;
 			}
 
+			text {
+				fill: black;
+				stroke: none;
+				font-size: 0.3rem;
+				opacity: 0;
+				transition: transform 0.5s ease-in-out, opacity 0.25s ease-in-out;
+			}
+
 			.experience-stats-open & {
 				circle {
 					r: 88;
 				}
 
 				line {
-					stroke-dashoffset: calc(60 - 28 - min(var(--stat-value) * 6 - 1.5, 58));
+					stroke-dashoffset: calc(60 - 28 - min(var(--stat-value) * 6 - 1, 58));
+				}
+
+				text {
+					opacity: 1;
+					transition: transform 0.5s ease-in-out, opacity 0.25s 0.25s ease-in-out;
 				}
 			}
 		}

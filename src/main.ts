@@ -1,8 +1,16 @@
 import "./style.scss";
 
 const TAU = Math.PI * 2;
-const CATEGORIES_LIST = ["Impact", "Emotion", "Immersion", "Embodiment", "Flow", "Cognition", "Enjoyment", "Time", "Scale", "Space", "Point of View", "See, Hear, Act"].reverse();
-const EXPERIENCES_STATS = [[10, 9, 10, 5, 10, 9, 10, 7, 9, 9, 9, 10]];
+const CATEGORIES_LIST = ["Impact", "Emotion", "Interactivity", "Embodiment", "Flow", "Cognition", "Enjoyment", "Time", "Scale", "Space", "Point of View", "Visuals/Sound"].reverse();
+const EXPERIENCES_STATS = [
+	// [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+	[7.69, 7.72, 2.75, 4.83, 7.81, 8.42, 8.03, 7.61, 7.72, 8.33, 8.36, 8.17],
+	[7.23, 8.57, 8.57, 8.27, 7.07, 9.0, 7.83, 8.87, 8.7, 8.47, 8.97, 8.67, 8.57],
+	[6.82, 6.9, 5.8, 4.53, 7.17, 7.21, 7.4, 6.87, 7.6, 7.32, 7.86, 7.7],
+	[6.59, 7.35, 5.71, 6.68, 7.53, 6.62, 6.94, 7.82, 8.24, 7.29, 6.88, 6.5],
+	[7.61, 7.23, 7.03, 7.0, 8.3, 6.63, 7.03, 8.2, 7.73, 6.2, 8.13, 7.41],
+	[7.57, 8.14, 7.71, 8.29, 8.25, 6.32, 6.89, 7.97, 8.43, 8.64, 8.43, 7.71],
+] as const;
 const CATEGORIES = CATEGORIES_LIST.length;
 const TOPICS_PER_CATEGORY = 6;
 const TOTAL_TOPICS = CATEGORIES * TOPICS_PER_CATEGORY;
@@ -10,6 +18,7 @@ const CATEGORY_ANGLE = TAU / CATEGORIES;
 const CATEGORY_ANGLE_EXPANDED = (96 / 360) * TAU;
 const SLICE_ANGLE = TAU / TOTAL_TOPICS;
 const CONFLATION_FIX_ANGLE = 0.2 / TAU;
+const EXPERIENCE_VALUE_OFFSET_DEGREES = 4;
 const SLICE_RADIUS = 120; // Slightly more than 100 so clipping can keep it circular
 const ROTATION_SHIFT = (SLICE_ANGLE * TOPICS_PER_CATEGORY) / 2 + SLICE_ANGLE / 2;
 const ANIMATION_LENGTH = 1000;
@@ -73,8 +82,17 @@ function instantiateSvgElements() {
 		statLine.setAttribute("y2", "-88");
 		statLine.setAttribute("data-experience-stat", "");
 		statLine.setAttribute("transform", `rotate(${(i / CATEGORIES) * 360})`);
-		statLine.style.setProperty("--stat-value", `${EXPERIENCES_STATS[0][i]}`);
 		experienceStats.appendChild(statLine);
+	}
+
+	for (let i = 0; i < CATEGORIES; i += 1) {
+		const valueText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+		valueText.setAttribute("data-experience-value", "");
+		valueText.setAttribute("text-anchor", "middle");
+		valueText.setAttribute("alignment-baseline", "middle");
+		const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
+		valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
+		experienceStats.appendChild(valueText);
 	}
 
 	CATEGORIES_LIST.forEach((category) => {
@@ -262,15 +280,46 @@ function addExperienceButtonListeners() {
 
 			if (button.classList.contains("active")) {
 				openExperience = Array.from(document.querySelectorAll("[data-experience-button]")).indexOf(button);
+				if (typeof openExperience !== "number") return;
 
 				document.body.classList.add("experience-stats-open");
 				document.body.style.setProperty("--experience-color", `var(--color-wheel-topic-${openExperience + 1})`);
 
-				const experienceNameLabel = document.querySelector("[data-experience-name]");
-				const experienceTitle = document.querySelectorAll("[data-experience-button] [data-experience-title]")?.[openExperience].innerHTML;
-				if (experienceNameLabel && experienceTitle) experienceNameLabel.innerHTML = experienceTitle;
+				const experienceNameOpen = document.querySelector("[data-experience-name].open");
+				experienceNameOpen?.classList.remove("open");
+				const experienceNames = Array.from(document.querySelectorAll("[data-experience-name]"));
+				experienceNames[openExperience].classList.add("open");
+
+				const x = openExperience;
+				const experienceStats = Array.from(document.querySelectorAll("[data-experience-stat]"));
+				experienceStats.forEach((statLine, i) => {
+					if (!(statLine instanceof SVGElement)) return;
+					statLine.style.setProperty("--stat-value", `${EXPERIENCES_STATS[x][i]}`);
+				});
+
+				const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
+				experienceValue.forEach((valueText, i) => {
+					if (!(valueText instanceof SVGElement)) return;
+
+					const value = EXPERIENCES_STATS[x][i];
+
+					valueText.innerHTML = value.toFixed(2);
+					const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
+					valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, ${-(28 + 6 * value)}px) rotate(${-rotation}deg)`);
+				});
 			} else {
 				openExperience = undefined;
+
+				const experienceNameOpen = document.querySelector("[data-experience-name].open");
+				experienceNameOpen?.classList.remove("open");
+
+				const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
+				experienceValue.forEach((valueText, i) => {
+					if (!(valueText instanceof SVGElement)) return;
+
+					const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
+					valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
+				});
 
 				document.body.classList.remove("experience-stats-open");
 			}
