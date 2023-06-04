@@ -131,6 +131,9 @@ function updateSlices(expandedCategory: number, expandedCategoryAngle: number) {
 		const stopX = -Math.sin(stopAngle + conflationFix) * SLICE_RADIUS;
 		const stopY = -Math.cos(stopAngle + conflationFix) * SLICE_RADIUS;
 		slice.setAttribute("points", `0,0 ${startX},${startY} ${stopX},${stopY}`);
+		const stopXNoConflation = -Math.sin(stopAngle) * SLICE_RADIUS;
+		const stopYNoConflation = -Math.cos(stopAngle) * SLICE_RADIUS;
+		slice.setAttribute("data-points-no-conflation", `0,0 ${startX},${startY} ${stopXNoConflation},${stopYNoConflation}`);
 
 		// Set the category separator angle
 		if (index % TOPICS_PER_CATEGORY === 0) {
@@ -229,6 +232,7 @@ function onClickSlice(e: Event) {
 
 	if (currentlyOpen && categoryIndex === currentlyOpenIndexCategory) {
 		console.log(`Opening local slice ${localSliceIndex} (slice ${sliceIndex}) in category ${categoryIndex}`);
+		openSliceContent(sliceIndex, categoryIndex, TOPICS_PER_CATEGORY - localSliceIndex - 1);
 	} else {
 		const open = () => {
 			animation = {
@@ -264,6 +268,38 @@ function close(then?: () => void) {
 
 	// Call an optional callback after the animation is done closing
 	if (then) setTimeout(then, ANIMATION_LENGTH_CLOSE);
+}
+
+function openSliceContent(sliceIndex: number, categoryIndex: number, experienceIndex: number) {
+	document.body.classList.add("slice-content-open");
+	document.body.style.setProperty("--slice-content-color", `var(--color-wheel-topic-${experienceIndex + 1})`);
+
+	const experienceNameOpen = document.querySelector("[data-experience-name].open");
+	experienceNameOpen?.classList.remove("open");
+	const experienceNames = Array.from(document.querySelectorAll("[data-experience-name]"));
+	experienceNames[experienceIndex].classList.add("open");
+
+	const sliceClippingMaskPolygon = document.querySelector("#slice-content-open-slice-mask polygon");
+	const sliceClippingMaskPath = document.querySelectorAll("[data-slice]") || undefined;
+	if (sliceClippingMaskPolygon && sliceClippingMaskPath) {
+		// const [startAngle, stopAngle] = sliceAngles[index];
+		// const conflationFix = index === slices.length - 1 ? 0 : CONFLATION_FIX_ANGLE;
+
+		// // Write the vertex angles to the polygon for this slice
+		// const startX = -Math.sin(startAngle) * SLICE_RADIUS;
+		// const startY = -Math.cos(startAngle) * SLICE_RADIUS;
+		// const stopX = -Math.sin(stopAngle + conflationFix) * SLICE_RADIUS;
+		// const stopY = -Math.cos(stopAngle + conflationFix) * SLICE_RADIUS;
+		// slice.setAttribute("points", `0,0 ${startX},${startY} ${stopX},${stopY}`);
+
+		const polygonElement = sliceClippingMaskPath[sliceIndex];
+		const points = polygonElement?.getAttribute("data-points-no-conflation") || "";
+		if (!points) return;
+		const [x, y] = points.split(",").map((n) => parseFloat(n));
+		const angle = Math.atan2(y, x);
+		console.log(angle);
+		sliceClippingMaskPolygon.setAttribute("points", points);
+	}
 }
 
 function addExperienceButtonListeners() {

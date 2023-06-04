@@ -323,7 +323,7 @@ svg text {
 				transition: stroke 0.5s ease-in-out;
 
 				circle {
-					r: 24;
+					r: 24px;
 					transition: r 0.5s ease-in-out;
 					filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
 				}
@@ -331,8 +331,8 @@ svg text {
 				line {
 					stroke-width: 0.15rem;
 					stroke-linecap: round;
-					stroke-dasharray: 60 1000;
-					stroke-dashoffset: 60;
+					stroke-dasharray: 60px 1000px;
+					stroke-dashoffset: 60px;
 					transition: stroke-dashoffset 0.5s ease-in-out;
 				}
 
@@ -346,7 +346,7 @@ svg text {
 
 				.experience-stats-open & {
 					circle {
-						r: 88;
+						r: 88px;
 					}
 
 					line {
@@ -370,6 +370,8 @@ svg text {
 			}
 
 			&.rings {
+				transition: opacity 0.5s ease-in-out;
+
 				circle {
 					opacity: 0.15;
 					fill: none;
@@ -401,32 +403,89 @@ svg text {
 						fill: black;
 					}
 				}
+
+				.slice-content-open & {
+					opacity: 0;
+				}
 			}
 
-			&.content-presentation {
-				fill: white;
-				stroke: var(--experience-color);
-				stroke-width: 0.125rem;
+			&.slice-content {
 				transition: stroke 0.5s ease-in-out;
 
-				circle {
-					r: 24;
-					transition: r 0.5s ease-in-out;
+				.shadow {
 					filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
 				}
 
-				.content-presentation-open & {
+				circle {
+					r: 24px;
+					transition: r 0.5s ease-in-out;
+
+					&.color-outline {
+						fill: none;
+						stroke: var(--slice-content-color);
+						stroke-width: 0.125rem;
+						transition: r 0.5s ease-in-out, stroke 0.5s ease-in-out;
+					}
+
+					&.white-outline {
+						fill: none;
+						stroke: white;
+						stroke-width: 0.85rem;
+					}
+
+					&.white-inner {
+						fill: none;
+						stroke: white;
+
+						&.wide {
+							stroke-width: 0.1rem;
+							r: calc(24px - 13px);
+						}
+
+						&.thin {
+							stroke-width: 0.033rem;
+							r: calc(24px - 18.5px);
+						}
+					}
+				}
+
+				#slice-content-shadow-shell-mask circle {
+					fill: black;
+					r: 22px;
+				}
+
+				image {
+					width: calc(88px * 2);
+					height: calc(88px * 2);
+					x: -88px;
+					y: -88px;
+				}
+
+				.text-quadrant {
+					fill: white;
+					width: 88px;
+					height: 88px;
+					x: -88px;
+					y: 0;
+				}
+
+				.slice-content-open & {
 					circle {
-						r: 88;
+						r: 88px;
+
+						&.white-inner {
+							&.wide {
+								r: calc(88px - 13px);
+							}
+
+							&.thin {
+								r: calc(88px - 18.5px);
+							}
+						}
 					}
 
-					line {
-						stroke-dashoffset: calc(60 - 28 - min(var(--stat-value) * 6 - 1, 58));
-					}
-
-					text {
-						opacity: 1;
-						transition: transform 0.5s ease-in-out, opacity 0.25s 0.25s ease-in-out;
+					#slice-content-shadow-shell-mask circle {
+						r: 86px;
 					}
 				}
 			}

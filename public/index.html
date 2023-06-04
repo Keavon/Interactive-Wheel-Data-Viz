@@ -102,11 +102,11 @@
 		<div class="wheel">
 			<svg viewBox="-100 -100 200 200">
 				<defs>
-					<clipPath id="circle-clipping-mask">
+					<clipPath id="slices-mask">
 						<circle r="100" />
 					</clipPath>
 				</defs>
-				<g class="slices" clip-path="url(#circle-clipping-mask)" data-slices></g>
+				<g class="slices" clip-path="url(#slices-mask)" data-slices></g>
 				<g class="experience-stats" data-experience-stats>
 					<circle />
 				</g>
@@ -146,8 +146,33 @@
 					<text dominant-baseline="middle" x="-2px" y="-34px">— 1</text>
 					<text dominant-baseline="middle" x="2px" y="34px">1 —</text>
 				</g>
-				<g class="content-presentation" data-experience-stats>
-					<circle />
+				<g class="slice-content" data-experience-stats>
+					<defs>
+						<mask id="slice-content-open-slice-mask">
+							<rect x="-100" y="-100" width="200" height="200" fill="white" />
+							<polygon points="" fill="black" />
+							<ellipse rx="66" ry="66" fill="white" />
+							<ellipse rx="88" ry="88" fill="none" stroke="white" stroke-width="7px" />
+						</mask>
+						<clipPath id="slice-content-mask">
+							<circle />
+						</clipPath>
+						<mask id="slice-content-shadow-shell-mask">
+							<rect x="-100" y="-100" width="200" height="200" fill="white" />
+							<circle />
+						</mask>
+					</defs>
+					<circle class="shadow" mask="url(#slice-content-shadow-shell-mask)" />
+					<g class="slice-content-clipped" mask="url(#slice-content-open-slice-mask)">
+						<g clip-path="url(#slice-content-mask)">
+							<image href="images/09_sensory_scale/reeducated.png" />
+							<circle class="white-outline" />
+							<rect class="text-quadrant" />
+						</g>
+					</g>
+					<circle class="color-outline" />
+					<circle class="white-inner wide" />
+					<circle class="white-inner thin" />
 				</g>
 				<g class="hub" data-hub>
 					<circle r="28" />
