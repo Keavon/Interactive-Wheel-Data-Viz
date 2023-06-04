@@ -310,111 +310,143 @@ svg text {
 			pointer-events: none;
 		}
 
-		.slices {
-			border-radius: 50%;
-			pointer-events: auto;
-		}
-
-		.category-separators {
-			overflow: visible;
-		}
-
-		.category-labels {
-			text-anchor: middle;
-			font-size: 0.4rem;
-		}
-
-		.hub {
-			text {
-				text-anchor: middle;
-				font-size: 0.45rem;
+		g {
+			&.slices {
+				border-radius: 50%;
+				pointer-events: auto;
 			}
 
-			.experience-name {
-				fill: var(--color);
-				opacity: 0;
-				transition: opacity 0.5s ease-in-out;
+			&.experience-stats {
+				fill: white;
+				stroke: var(--experience-color);
+				stroke-width: 0.125rem;
+				transition: stroke 0.5s ease-in-out;
 
-				&.open {
-					opacity: 1;
-				}
-			}
-		}
-
-		.experience-stats {
-			fill: white;
-			stroke: var(--experience-color);
-			stroke-width: 0.125rem;
-			transition: stroke 0.5s ease-in-out;
-
-			circle {
-				r: 24;
-				transition: r 0.5s ease-in-out;
-				filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
-			}
-
-			line {
-				stroke-width: 0.15rem;
-				stroke-linecap: round;
-				stroke-dasharray: 60 1000;
-				stroke-dashoffset: 60;
-				transition: stroke-dashoffset 0.5s ease-in-out;
-			}
-
-			text {
-				fill: black;
-				stroke: none;
-				font-size: 0.3rem;
-				opacity: 0;
-				transition: transform 0.5s ease-in-out, opacity 0.25s ease-in-out;
-			}
-
-			.experience-stats-open & {
 				circle {
-					r: 88;
+					r: 24;
+					transition: r 0.5s ease-in-out;
+					filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
 				}
 
 				line {
-					stroke-dashoffset: calc(60 - 28 - min(var(--stat-value) * 6 - 1, 58));
-				}
-
-				text {
-					opacity: 1;
-					transition: transform 0.5s ease-in-out, opacity 0.25s 0.25s ease-in-out;
-				}
-			}
-		}
-
-		.rings {
-			circle {
-				opacity: 0.15;
-				fill: none;
-				stroke: white;
-				stroke-width: 0.02rem;
-				transition: stroke 0.5s ease-in-out, opacity 0.5s ease-in-out;
-			}
-
-			text {
-				font-size: 0.25rem;
-				fill: white;
-				transition: fill 0.5s ease-in-out;
-
-				+ text {
-					text-anchor: end;
-				}
-			}
-
-			.experience-stats-open & {
-				circle {
-					stroke: black;
-
-					&.ring-10 {
-						opacity: 0;
-					}
+					stroke-width: 0.15rem;
+					stroke-linecap: round;
+					stroke-dasharray: 60 1000;
+					stroke-dashoffset: 60;
+					transition: stroke-dashoffset 0.5s ease-in-out;
 				}
 
 				text {
 					fill: black;
+					stroke: none;
+					font-size: 0.3rem;
+					opacity: 0;
+					transition: transform 0.5s ease-in-out, opacity 0.25s ease-in-out;
+				}
+
+				.experience-stats-open & {
+					circle {
+						r: 88;
+					}
+
+					line {
+						stroke-dashoffset: calc(60 - 28 - min(var(--stat-value) * 6 - 1, 58));
+					}
+
+					text {
+						opacity: 1;
+						transition: transform 0.5s ease-in-out, opacity 0.25s 0.25s ease-in-out;
+					}
+				}
+			}
+
+			&.category-separators {
+				overflow: visible;
+			}
+
+			&.category-labels {
+				text-anchor: middle;
+				font-size: 0.4rem;
+			}
+
+			&.rings {
+				circle {
+					opacity: 0.15;
+					fill: none;
+					stroke: white;
+					stroke-width: 0.02rem;
+					transition: stroke 0.5s ease-in-out, opacity 0.5s ease-in-out;
+				}
+
+				text {
+					font-size: 0.25rem;
+					fill: white;
+					transition: fill 0.5s ease-in-out;
+
+					+ text {
+						text-anchor: end;
+					}
+				}
+
+				.experience-stats-open & {
+					circle {
+						stroke: black;
+
+						&.ring-10 {
+							opacity: 0;
+						}
+					}
+
+					text {
+						fill: black;
+					}
+				}
+			}
+
+			&.content-presentation {
+				fill: white;
+				stroke: var(--experience-color);
+				stroke-width: 0.125rem;
+				transition: stroke 0.5s ease-in-out;
+
+				circle {
+					r: 24;
+					transition: r 0.5s ease-in-out;
+					filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
+				}
+
+				.content-presentation-open & {
+					circle {
+						r: 88;
+					}
+
+					line {
+						stroke-dashoffset: calc(60 - 28 - min(var(--stat-value) * 6 - 1, 58));
+					}
+
+					text {
+						opacity: 1;
+						transition: transform 0.5s ease-in-out, opacity 0.25s 0.25s ease-in-out;
+					}
+				}
+			}
+
+			&.hub {
+				pointer-events: auto;
+
+				text {
+					text-anchor: middle;
+					font-size: 0.45rem;
+				}
+
+				.experience-name {
+					fill: var(--color);
+					opacity: 0;
+					transition: opacity 0.5s ease-in-out;
+
+					&.open {
+						opacity: 1;
+					}
 				}
 			}
 		}

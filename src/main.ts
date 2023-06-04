@@ -31,10 +31,7 @@ type Animation = {
 	angleStart: number;
 	angleStop: number;
 };
-const animations: Record<string, Animation | undefined> = {
-	categoryOpeningAnimation: undefined,
-	categoryClosingAnimation: undefined,
-};
+let animation: Animation | undefined;
 
 let openExperience;
 
@@ -42,6 +39,8 @@ function init() {
 	instantiateSvgElements();
 	animate();
 	addExperienceButtonListeners();
+
+	document.querySelector("[data-hub]")?.addEventListener("click", () => close());
 }
 
 function instantiateSvgElements() {
@@ -105,7 +104,7 @@ function instantiateSvgElements() {
 	});
 }
 
-function updateSlices(expandedCategoryInstances: { expandedCategory: number; expandedCategoryAngle: number }[]) {
+function updateSlices(expandedCategory: number, expandedCategoryAngle: number) {
 	// Get all the slice polygon elements
 	const slices = (Array.from(document.querySelectorAll("[data-slices] [data-slice]")) || undefined) as SVGPathElement[] | undefined;
 	if (!slices) return;
@@ -118,17 +117,8 @@ function updateSlices(expandedCategoryInstances: { expandedCategory: number; exp
 	const categoryLabels = (Array.from(document.querySelectorAll("[data-category-labels] [data-category-label]")) || undefined) as SVGPathElement[] | undefined;
 	if (!categoryLabels) return;
 
-	// Calculate the slice angles for each instance, then average the angle of each slice from all its instances
-	const instances = expandedCategoryInstances.length > 0 ? expandedCategoryInstances : [{ expandedCategory: 0, expandedCategoryAngle: CATEGORY_ANGLE }];
-	const sliceAnglesInstances = instances.map((expandedCategory) => {
-		return calculateSliceAngles(expandedCategory.expandedCategory, expandedCategory.expandedCategoryAngle);
-	});
-	const sliceAnglesSum = sliceAnglesInstances.reduce((acc, value) => {
-		return acc.map((accEntry, index) => [accEntry[0] + value[index][0], accEntry[1] + value[index][1]]);
-	});
-	const sliceAngles = sliceAnglesSum.map((value) => {
-		return [value[0] / sliceAnglesInstances.length, value[1] / sliceAnglesInstances.length] as [number, number];
-	});
+	// Calculate the slice angles for each instance
+	const sliceAngles = calculateSliceAngles(expandedCategory, expandedCategoryAngle);
 
 	// Update the angles of each slice polygon
 	slices.forEach((slice, index) => {
@@ -206,67 +196,74 @@ function calculateSliceAngles(expandedCategory: number, expandedCategoryAngle: n
 }
 
 function animate() {
-	const clamp = (x: number) => Math.max(Math.min(x, 1), 0);
-	const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10);
-	// const ease = (x: number) => 1 - (1 - x) * (1 - x);
+	let expandedCategory = 0;
+	let expandedCategoryAngle = CATEGORY_ANGLE;
 
-	const validAnimations = Object.values(animations).filter((animation) => animation) as Animation[];
-	const animationInstances = validAnimations.map((animation) => {
+	if (animation) {
+		const clamp = (x: number) => Math.max(Math.min(x, 1), 0);
+		const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10);
+		// const ease = (x: number) => 1 - (1 - x) * (1 - x);
+
 		// Animation time from 0 to 1, clamped at either end if paused
 		const animationFraction = clamp((Date.now() - animation.timeStart) / (animation.timeStop - animation.timeStart));
 
-		const angle = animation.angleStart + (animation.angleStop - animation.angleStart) * smootherstep(animationFraction);
-		return { expandedCategory: animation.category, expandedCategoryAngle: angle };
-	});
+		expandedCategory = animation.category;
+		expandedCategoryAngle = animation.angleStart + (animation.angleStop - animation.angleStart) * smootherstep(animationFraction);
+	}
 
-	updateSlices(animationInstances);
+	updateSlices(expandedCategory, expandedCategoryAngle);
 
 	requestAnimationFrame(animate);
-}
-
-function triggerCategoryAnimation(index: number) {
-	const angleStop = animations.categoryOpeningAnimation?.angleStop;
-	const timeStart = animations.categoryOpeningAnimation?.timeStart;
-	const currentlyOpenIndexCategory = timeStart && Date.now() >= timeStart && animations.categoryOpeningAnimation?.category;
-	const currentlyOpenIndex = typeof currentlyOpenIndexCategory === "number" ? currentlyOpenIndexCategory : undefined;
-	const closeFirst = currentlyOpenIndex !== undefined && angleStop !== CATEGORY_ANGLE;
-
-	const open = () => {
-		animations.categoryOpeningAnimation = {
-			category: index,
-			timeStart: Date.now(),
-			timeStop: Date.now() + ANIMATION_LENGTH,
-			angleStart: CATEGORY_ANGLE,
-			angleStop: CATEGORY_ANGLE_EXPANDED,
-		};
-	};
-
-	if (closeFirst) {
-		// Close
-		animations.categoryOpeningAnimation = {
-			category: currentlyOpenIndex,
-			timeStart: Date.now(),
-			timeStop: Date.now() + ANIMATION_LENGTH_CLOSE,
-			angleStart: CATEGORY_ANGLE_EXPANDED, // open ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED,
-			angleStop: CATEGORY_ANGLE, // open ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE,
-		};
-
-		// Open
-		if (index !== currentlyOpenIndex) {
-			setTimeout(open, ANIMATION_LENGTH_CLOSE);
-		}
-	} else {
-		// Open
-		open();
-	}
 }
 
 function onClickSlice(e: Event) {
 	const slice = e.target as SVGPolygonElement;
 	const sliceIndex = Array.from(slice.parentElement!.children).indexOf(slice);
+	const localSliceIndex = sliceIndex % TOPICS_PER_CATEGORY;
 	const categoryIndex = Math.floor(sliceIndex / TOPICS_PER_CATEGORY);
 
-	triggerCategoryAnimation(categoryIndex);
+	let currentlyOpenIndexCategory = animation?.timeStart && Date.now() >= animation?.timeStart && animation?.category;
+	currentlyOpenIndexCategory = typeof currentlyOpenIndexCategory === "number" ? currentlyOpenIndexCategory : undefined;
+
+	const currentlyOpen = currentlyOpenIndexCategory !== undefined && animation?.angleStop !== CATEGORY_ANGLE;
+
+	if (currentlyOpen && categoryIndex === currentlyOpenIndexCategory) {
+		console.log(`Opening local slice ${localSliceIndex} (slice ${sliceIndex}) in category ${categoryIndex}`);
+	} else {
+		const open = () => {
+			animation = {
+				category: categoryIndex,
+				timeStart: Date.now(),
+				timeStop: Date.now() + ANIMATION_LENGTH,
+				angleStart: CATEGORY_ANGLE,
+				angleStop: CATEGORY_ANGLE_EXPANDED,
+			};
+		};
+
+		if (!currentlyOpen) open();
+		else close(open);
+	}
+}
+
+function close(then?: () => void) {
+	let currentlyOpenIndexCategory = animation?.timeStart && Date.now() >= animation?.timeStart && animation?.category;
+	currentlyOpenIndexCategory = typeof currentlyOpenIndexCategory === "number" ? currentlyOpenIndexCategory : undefined;
+
+	const currentlyOpen = currentlyOpenIndexCategory !== undefined && animation?.angleStop !== CATEGORY_ANGLE;
+
+	if (!currentlyOpen) return;
+
+	// Close
+	animation = {
+		category: currentlyOpenIndexCategory || 0,
+		timeStart: Date.now(),
+		timeStop: Date.now() + ANIMATION_LENGTH_CLOSE,
+		angleStart: CATEGORY_ANGLE_EXPANDED, // open ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED,
+		angleStop: CATEGORY_ANGLE, // open ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE,
+	};
+
+	// Call an optional callback after the animation is done closing
+	if (then) setTimeout(then, ANIMATION_LENGTH_CLOSE);
 }
 
 function addExperienceButtonListeners() {
