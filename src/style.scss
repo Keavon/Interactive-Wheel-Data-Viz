@@ -15,6 +15,7 @@
 * {
 	min-width: 0;
 	min-height: 0;
+	user-select: none;
 }
 
 :root {
@@ -55,7 +56,6 @@ svg text {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	z-index: -1;
 
 	&::before,
 	&::after {
@@ -87,8 +87,8 @@ svg text {
 	--gap-from-wheel: min(calc(-50vw * 0.95), var(--min-gap-from-wheel));
 
 	.instructions {
-		white-space: nowrap;
 		position: absolute;
+		white-space: nowrap;
 		color: var(--color-body-text);
 		font-size: 1.5rem;
 		left: var(--gap-from-wheel);
@@ -190,7 +190,6 @@ svg text {
 		color: var(--color-body-text);
 		text-align: center;
 		transform: translateY(-50%);
-		user-select: none;
 		--gap-from-wheel: calc(1vh * var(--wheel-height-percent-of-page) / 2 * 1.125);
 
 		&.left {
@@ -240,7 +239,6 @@ svg text {
 		display: flex;
 		flex-direction: column;
 		position: absolute;
-		user-select: none;
 		color: var(--color-body-text);
 		line-height: 1.1;
 		margin-top: 4rem;
@@ -306,7 +304,6 @@ svg text {
 		overflow: visible;
 
 		text {
-			user-select: none;
 			pointer-events: none;
 		}
 
@@ -321,6 +318,7 @@ svg text {
 				stroke: var(--experience-color);
 				stroke-width: 0.125rem;
 				transition: stroke 0.5s ease-in-out;
+				pointer-events: auto;
 
 				circle {
 					r: 24px;
@@ -411,6 +409,7 @@ svg text {
 
 			&.slice-content {
 				transition: stroke 0.5s ease-in-out;
+				pointer-events: auto;
 
 				.shadow {
 					filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4));
@@ -440,14 +439,22 @@ svg text {
 						&.wide {
 							stroke-width: 0.1rem;
 							r: calc(24px - 13px);
-							transition-delay: 25ms;
+							transition-delay: 20ms;
 						}
 
 						&.thin {
 							stroke-width: 0.033rem;
 							r: calc(24px - 18.5px);
-							transition-delay: 50ms;
+							transition-delay: 40ms;
 						}
+					}
+
+					&.inner {
+						r: 24px;
+					}
+
+					&.outer {
+						r: 24px;
 					}
 				}
 
@@ -520,6 +527,14 @@ svg text {
 							&.thin {
 								r: calc(88px - 16px);
 							}
+						}
+
+						&.inner {
+							r: 70px;
+						}
+
+						&.outer {
+							r: 88px;
 						}
 					}
 

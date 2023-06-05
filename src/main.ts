@@ -13,8 +13,8 @@ const CONFLATION_FIX_ANGLE = 0.2 / TAU;
 const EXPERIENCE_VALUE_OFFSET_DEGREES = 4;
 const SLICE_RADIUS = 120; // Slightly more than 100 so clipping can keep it circular
 const ROTATION_SHIFT = (SLICE_ANGLE * TOPICS_PER_CATEGORY) / 2 + SLICE_ANGLE / 2;
-const ANIMATION_LENGTH = 1000;
-const ANIMATION_LENGTH_CLOSE = ANIMATION_LENGTH / 2;
+const ANIMATION_LENGTH = 500;
+const ANIMATION_LENGTH_CLOSE = ANIMATION_LENGTH;
 
 type Animation = {
 	category: number;
@@ -25,14 +25,28 @@ type Animation = {
 };
 let animation: Animation | undefined;
 
-let openExperience;
+document.addEventListener("DOMContentLoaded", init);
 
 function init() {
 	instantiateSvgElements();
 	animate();
-	addExperienceButtonListeners();
 
-	document.querySelector("[data-hub]")?.addEventListener("click", () => close());
+	const experienceButtons = document.querySelectorAll("[data-experience-button]");
+	experienceButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			if (button.classList.contains("active")) {
+				closeExperienceStats();
+			} else {
+				const openExperience = Array.from(document.querySelectorAll("[data-experience-button]")).indexOf(button);
+				openExperienceStats(openExperience);
+			}
+		});
+	});
+
+	document.querySelector("[data-background]")?.addEventListener("click", () => closeThen());
+	document.querySelector("[data-hub]")?.addEventListener("click", () => closeThen());
+	document.querySelector("[data-experience-stats]")?.addEventListener("click", () => closeExperienceStats());
+	document.querySelector("[data-slice-content]")?.addEventListener("click", () => closeSliceContent());
 }
 
 function instantiateSvgElements() {
@@ -217,50 +231,85 @@ function onClickSlice(e: Event) {
 	const localSliceIndex = sliceIndex % TOPICS_PER_CATEGORY;
 	const categoryIndex = Math.floor(sliceIndex / TOPICS_PER_CATEGORY);
 
-	let currentlyOpenIndexCategory = animation?.timeStart && Date.now() >= animation?.timeStart && animation?.category;
-	currentlyOpenIndexCategory = typeof currentlyOpenIndexCategory === "number" ? currentlyOpenIndexCategory : undefined;
+	if (categoryIndex === currentlyOpenSlicesCategory()) {
+		const experienceNames = Array.from(document.querySelectorAll("[data-experience-name]"));
+		const openExperienceName = document.querySelector("[data-experience-name].open");
+		const currentlyOpenSliceTopic = TOPICS_PER_CATEGORY - experienceNames.findIndex((experienceName) => experienceName === openExperienceName) - 1;
 
-	const currentlyOpen = currentlyOpenIndexCategory !== undefined && animation?.angleStop !== CATEGORY_ANGLE;
-
-	if (currentlyOpen && categoryIndex === currentlyOpenIndexCategory) {
-		console.log(`Opening local slice ${localSliceIndex} (slice ${sliceIndex}) in category ${categoryIndex}`);
-		openSliceContent(sliceIndex, categoryIndex, TOPICS_PER_CATEGORY - localSliceIndex - 1);
+		if (localSliceIndex === currentlyOpenSliceTopic) {
+			closeSliceContent();
+		} else {
+			openSliceContent(sliceIndex, categoryIndex, TOPICS_PER_CATEGORY - localSliceIndex - 1);
+		}
 	} else {
-		const open = () => {
-			animation = {
-				category: categoryIndex,
-				timeStart: Date.now(),
-				timeStop: Date.now() + ANIMATION_LENGTH,
-				angleStart: CATEGORY_ANGLE,
-				angleStop: CATEGORY_ANGLE_EXPANDED,
-			};
-		};
-
-		if (!currentlyOpen) open();
-		else close(open);
+		closeSliceContent();
+		openSlices(categoryIndex);
 	}
 }
 
-function close(then?: () => void) {
-	let currentlyOpenIndexCategory = animation?.timeStart && Date.now() >= animation?.timeStart && animation?.category;
-	currentlyOpenIndexCategory = typeof currentlyOpenIndexCategory === "number" ? currentlyOpenIndexCategory : undefined;
+function currentlyOpenSlicesCategory(): number | undefined {
+	const category = animation?.timeStart && Date.now() >= animation?.timeStart && animation?.category;
 
-	const currentlyOpen = currentlyOpenIndexCategory !== undefined && animation?.angleStop !== CATEGORY_ANGLE;
+	if (animation?.angleStop === CATEGORY_ANGLE) return undefined;
 
-	if (!currentlyOpen) return;
+	return typeof category === "number" ? category : undefined;
+}
 
-	// Close
-	animation = {
-		category: currentlyOpenIndexCategory || 0,
-		timeStart: Date.now(),
-		timeStop: Date.now() + ANIMATION_LENGTH_CLOSE,
-		angleStart: CATEGORY_ANGLE_EXPANDED, // open ? CATEGORY_ANGLE : CATEGORY_ANGLE_EXPANDED,
-		angleStop: CATEGORY_ANGLE, // open ? CATEGORY_ANGLE_EXPANDED : CATEGORY_ANGLE,
+function closeThen(then?: () => void) {
+	const sliceContentOpen = document.body.classList.contains("slice-content-open");
+	if (sliceContentOpen) {
+		closeSliceContent();
+		return;
+	}
+
+	const experienceStatsOpen = document.body.classList.contains("experience-stats-open");
+	if (experienceStatsOpen) {
+		closeExperienceStats();
+		return;
+	}
+
+	const slicesOpen = currentlyOpenSlicesCategory() !== undefined && animation?.angleStop !== CATEGORY_ANGLE;
+	if (slicesOpen) {
+		// Close the slices
+		closeSlices();
+
+		// If a `then` callback was provided, call it after the animation is done closing
+		if (then) setTimeout(then, ANIMATION_LENGTH_CLOSE);
+	}
+}
+
+// SLICES
+
+function openSlices(categoryIndex: number) {
+	closeExperienceStats();
+
+	const open = () => {
+		animation = {
+			category: categoryIndex,
+			timeStart: Date.now(),
+			timeStop: Date.now() + ANIMATION_LENGTH,
+			angleStart: CATEGORY_ANGLE,
+			angleStop: CATEGORY_ANGLE_EXPANDED,
+		};
 	};
 
-	// Call an optional callback after the animation is done closing
-	if (then) setTimeout(then, ANIMATION_LENGTH_CLOSE);
+	if (currentlyOpenSlicesCategory() === undefined) open();
+	else closeThen(open);
 }
+
+function closeSlices() {
+	if (currentlyOpenSlicesCategory() !== undefined) {
+		animation = {
+			category: currentlyOpenSlicesCategory() || 0,
+			timeStart: Date.now(),
+			timeStop: Date.now() + ANIMATION_LENGTH_CLOSE,
+			angleStart: CATEGORY_ANGLE_EXPANDED,
+			angleStop: CATEGORY_ANGLE,
+		};
+	}
+}
+
+// SLICE CONTENT
 
 function openSliceContent(sliceIndex: number, categoryIndex: number, experienceIndex: number) {
 	const categoryName = CATEGORIES_LIST[categoryIndex];
@@ -273,10 +322,8 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 	document.body.classList.add("slice-content-open");
 	document.body.style.setProperty("--slice-content-color", `var(--color-wheel-topic-${experienceIndex + 1})`);
 
-	const experienceNameOpen = document.querySelector("[data-experience-name].open");
-	experienceNameOpen?.classList.remove("open");
-	const experienceNames = Array.from(document.querySelectorAll("[data-experience-name]"));
-	experienceNames[experienceIndex].classList.add("open");
+	document.querySelector("[data-experience-name].open")?.classList.remove("open");
+	document.querySelectorAll("[data-experience-name]")[experienceIndex].classList.add("open");
 
 	const sliceClippingMaskPolygon = document.querySelector("#slice-content-open-slice-mask polygon");
 	const sliceClippingMaskPath = document.querySelectorAll("[data-slice]") || undefined;
@@ -302,62 +349,59 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 	}
 }
 
-function addExperienceButtonListeners() {
-	const experienceButtons = document.querySelectorAll("[data-experience-button]");
-	experienceButtons.forEach((button) => {
-		button.addEventListener("click", () => {
-			button.classList.toggle("active");
-			experienceButtons.forEach((otherButton) => {
-				if (otherButton !== button) otherButton.classList.remove("active");
-			});
+function closeSliceContent() {
+	document.body.classList.remove("slice-content-open");
+	document.querySelector("[data-experience-name].open")?.classList.remove("open");
+}
 
-			if (button.classList.contains("active")) {
-				openExperience = Array.from(document.querySelectorAll("[data-experience-button]")).indexOf(button);
-				if (typeof openExperience !== "number") return;
+// EXPERIENCE STATS
 
-				document.body.classList.add("experience-stats-open");
-				document.body.style.setProperty("--experience-color", `var(--color-wheel-topic-${openExperience + 1})`);
+function openExperienceStats(openExperience: number) {
+	closeSlices();
+	closeSliceContent();
 
-				const experienceNameOpen = document.querySelector("[data-experience-name].open");
-				experienceNameOpen?.classList.remove("open");
-				const experienceNames = Array.from(document.querySelectorAll("[data-experience-name]"));
-				experienceNames[openExperience].classList.add("open");
+	const activeExperienceButton = document.querySelector("[data-experience-button].active");
+	if (activeExperienceButton instanceof HTMLElement) activeExperienceButton.classList.remove("active");
+	document.querySelectorAll("[data-experience-button]")[openExperience].classList.add("active");
 
-				const x = openExperience;
-				const experienceStats = Array.from(document.querySelectorAll("[data-experience-stat]"));
-				experienceStats.forEach((statLine, i) => {
-					if (!(statLine instanceof SVGElement)) return;
-					statLine.style.setProperty("--stat-value", `${EXPERIENCES_STATS[x][i]}`);
-				});
+	document.body.classList.add("experience-stats-open");
+	document.body.style.setProperty("--experience-color", `var(--color-wheel-topic-${openExperience + 1})`);
 
-				const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
-				experienceValue.forEach((valueText, i) => {
-					if (!(valueText instanceof SVGElement)) return;
+	document.querySelector("[data-experience-name].open")?.classList.remove("open");
+	document.querySelectorAll("[data-experience-name]")[openExperience].classList.add("open");
 
-					const value = EXPERIENCES_STATS[x][i];
+	const x = openExperience;
+	const experienceStats = Array.from(document.querySelectorAll("[data-experience-stat]"));
+	experienceStats.forEach((statLine, i) => {
+		if (!(statLine instanceof SVGElement)) return;
+		statLine.style.setProperty("--stat-value", `${EXPERIENCES_STATS[x][i]}`);
+	});
 
-					valueText.innerHTML = value.toFixed(2);
-					const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
-					valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, ${-(28 + 6 * value)}px) rotate(${-rotation}deg)`);
-				});
-			} else {
-				openExperience = undefined;
+	const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
+	experienceValue.forEach((valueText, i) => {
+		if (!(valueText instanceof SVGElement)) return;
 
-				const experienceNameOpen = document.querySelector("[data-experience-name].open");
-				experienceNameOpen?.classList.remove("open");
+		const value = EXPERIENCES_STATS[x][i];
 
-				const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
-				experienceValue.forEach((valueText, i) => {
-					if (!(valueText instanceof SVGElement)) return;
-
-					const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
-					valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
-				});
-
-				document.body.classList.remove("experience-stats-open");
-			}
-		});
+		valueText.innerHTML = value.toFixed(2);
+		const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
+		valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, ${-(28 + 6 * value)}px) rotate(${-rotation}deg)`);
 	});
 }
 
-document.addEventListener("DOMContentLoaded", init);
+function closeExperienceStats() {
+	const activeExperienceButton = document.querySelector("[data-experience-button].active");
+	if (activeExperienceButton instanceof HTMLElement) activeExperienceButton.classList.remove("active");
+
+	document.querySelector("[data-experience-name].open")?.classList.remove("open");
+
+	const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
+	experienceValue.forEach((valueText, i) => {
+		if (!(valueText instanceof SVGElement)) return;
+
+		const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
+		valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
+	});
+
+	document.body.classList.remove("experience-stats-open");
+}

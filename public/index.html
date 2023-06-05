@@ -6,7 +6,7 @@
 		<script src="bundle.js"></script>
 	</head>
 	<body>
-		<div class="background"></div>
+		<div class="background" data-background></div>
 		<div class="top-dot-buttons">
 			<span class="instructions">Click on color-coded experiences on wheel and dots:</span>
 			<div class="column left">
@@ -146,13 +146,13 @@
 					<text dominant-baseline="middle" x="-2px" y="-34px">— 1</text>
 					<text dominant-baseline="middle" x="2px" y="34px">1 —</text>
 				</g>
-				<g class="slice-content" data-experience-stats>
+				<g class="slice-content" data-slice-content>
 					<defs>
 						<mask id="slice-content-open-slice-mask">
 							<rect x="-100" y="-100" width="200" height="200" fill="white" />
 							<polygon points="" fill="black" />
-							<circle style="r: 70px" fill="white" />
-							<circle style="r: 88px" fill="none" stroke="white" stroke-width="7px" />
+							<circle fill="white" class="inner" />
+							<circle fill="none" stroke="white" stroke-width="7px" class="outer" />
 						</mask>
 						<clipPath id="slice-content-mask">
 							<circle />
