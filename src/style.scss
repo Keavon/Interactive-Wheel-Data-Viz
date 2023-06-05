@@ -311,6 +311,16 @@ svg text {
 			&.slices {
 				border-radius: 50%;
 				pointer-events: auto;
+
+				polygon {
+					fill: var(--slice-color);
+					transition: fill 0.1s ease-out;
+
+					&:hover,
+					&.category-hovered:not(.category-expanded) {
+						fill: color-mix(in hwb, white 25%, var(--slice-color) 75%);
+					}
+				}
 			}
 
 			&.experience-stats {
@@ -456,6 +466,10 @@ svg text {
 					&.outer {
 						r: 24px;
 					}
+				}
+
+				#slice-content-open-slice-mask polygon {
+					transition: transform 0.5s ease-in-out;
 				}
 
 				#slice-content-shadow-shell-mask circle {

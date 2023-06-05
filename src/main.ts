@@ -43,15 +43,31 @@ function init() {
 		});
 	});
 
-	document.querySelector("[data-background]")?.addEventListener("click", () => closeThen());
-	document.querySelector("[data-hub]")?.addEventListener("click", () => closeThen());
-	document.querySelector("[data-experience-stats]")?.addEventListener("click", () => closeExperienceStats());
-	document.querySelector("[data-slice-content]")?.addEventListener("click", () => closeSliceContent());
+	["[data-background]", "[data-hub]", "[data-experience-stats]", "[data-slice-content]"].forEach((selector) => {
+		document.querySelector(selector)?.addEventListener("click", () => closeThen());
+	});
+
+	window.addEventListener("mousemove", (e) => {
+		Array.from(document.querySelectorAll("[data-slice].category-hovered")).forEach((slice) => {
+			slice.classList.remove("category-hovered");
+		});
+
+		if (e.target instanceof SVGPolygonElement) {
+			const slices = Array.from(document.querySelectorAll("[data-slice]"));
+			const sliceIndex = slices.findIndex((slice) => slice === e.target);
+			const categoryIndexStart = Math.floor(sliceIndex / TOPICS_PER_CATEGORY) * TOPICS_PER_CATEGORY;
+			const categoryIndexEnd = categoryIndexStart + TOPICS_PER_CATEGORY;
+
+			for (let i = categoryIndexStart; i < categoryIndexEnd; i += 1) {
+				slices[i].classList.add("category-hovered");
+			}
+		}
+	});
 }
 
 function instantiateSvgElements() {
 	const slices = document.querySelector("[data-slices]") || undefined;
-	slices?.addEventListener("click", onClickSlice);
+	slices?.addEventListener("pointerup", onClickSlice);
 	if (!slices) return;
 
 	const categorySeparators = document.querySelector("[data-category-separators]") || undefined;
@@ -66,7 +82,7 @@ function instantiateSvgElements() {
 	for (let i = 0; i < TOTAL_TOPICS; i += 1) {
 		const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 		polygon.setAttribute("points", "0,0 0,0 0,0");
-		polygon.setAttribute("fill", `var(--color-wheel-topic-${TOPICS_PER_CATEGORY - (i % TOPICS_PER_CATEGORY)})`);
+		polygon.setAttribute("style", `--slice-color: var(--color-wheel-topic-${TOPICS_PER_CATEGORY - (i % TOPICS_PER_CATEGORY)})`);
 		polygon.setAttribute("data-slice", "");
 		slices.appendChild(polygon);
 	}
@@ -137,9 +153,12 @@ function updateSlices(expandedCategory: number, expandedCategoryAngle: number) {
 		const stopX = -Math.sin(stopAngle + conflationFix) * SLICE_RADIUS;
 		const stopY = -Math.cos(stopAngle + conflationFix) * SLICE_RADIUS;
 		slice.setAttribute("points", `0,0 ${startX},${startY} ${stopX},${stopY}`);
-		const stopXNoConflation = -Math.sin(stopAngle) * SLICE_RADIUS;
-		const stopYNoConflation = -Math.cos(stopAngle) * SLICE_RADIUS;
-		slice.setAttribute("data-points-no-conflation", `0,0 ${startX},${startY} ${stopXNoConflation},${stopYNoConflation}`);
+		slice.setAttribute("data-slice-start-angle", `${startAngle}`);
+		if (stopAngle - startAngle > CATEGORY_ANGLE / TOPICS_PER_CATEGORY + 0.001) {
+			slice.classList.add("category-expanded");
+		} else {
+			slice.classList.remove("category-expanded");
+		}
 
 		// Set the category separator angle
 		if (index % TOPICS_PER_CATEGORY === 0) {
@@ -211,7 +230,6 @@ function animate() {
 	if (animation) {
 		const clamp = (x: number) => Math.max(Math.min(x, 1), 0);
 		const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10);
-		// const ease = (x: number) => 1 - (1 - x) * (1 - x);
 
 		// Animation time from 0 to 1, clamped at either end if paused
 		const animationFraction = clamp((Date.now() - animation.timeStart) / (animation.timeStop - animation.timeStart));
@@ -293,11 +311,15 @@ function openSlices(categoryIndex: number) {
 		};
 	};
 
+	document.body.classList.add("slices-open");
+
 	if (currentlyOpenSlicesCategory() === undefined) open();
 	else closeThen(open);
 }
 
 function closeSlices() {
+	document.body.classList.remove("slices-open");
+
 	if (currentlyOpenSlicesCategory() !== undefined) {
 		animation = {
 			category: currentlyOpenSlicesCategory() || 0,
@@ -319,6 +341,8 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 	const experienceImageFileName = CONTENT_IMAGE_NAMES[experienceIndex];
 	const experienceImage = `images/${categoryFolder}/${experienceImageFileName}`;
 
+	const alreadyOpen = document.body.classList.contains("slice-content-open");
+
 	document.body.classList.add("slice-content-open");
 	document.body.style.setProperty("--slice-content-color", `var(--color-wheel-topic-${experienceIndex + 1})`);
 
@@ -330,9 +354,33 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 	if (!sliceClippingMaskPolygon || !sliceClippingMaskPath) return;
 
 	const polygonElement = sliceClippingMaskPath[sliceIndex];
-	const points = polygonElement?.getAttribute("data-points-no-conflation") || "";
-	if (!points) return;
-	sliceClippingMaskPolygon.setAttribute("points", points);
+
+	const startX = -Math.sin(0) * SLICE_RADIUS;
+	const startY = -Math.cos(0) * SLICE_RADIUS;
+	const stopX = -Math.sin(CATEGORY_ANGLE_EXPANDED / TOPICS_PER_CATEGORY) * SLICE_RADIUS;
+	const stopY = -Math.cos(CATEGORY_ANGLE_EXPANDED / TOPICS_PER_CATEGORY) * SLICE_RADIUS;
+	sliceClippingMaskPolygon.setAttribute("points", `0,0 ${startX},${startY} ${stopX},${stopY}`);
+
+	const updateAngle = (resetTransition: boolean) => {
+		const sliceStartAngle = parseFloat(polygonElement?.getAttribute("data-slice-start-angle") || "");
+		if (Number.isNaN(sliceStartAngle)) return;
+		sliceClippingMaskPolygon.setAttribute("style", `transform: rotate(${(-sliceStartAngle / TAU) * 360}deg);${resetTransition ? "transition-duration: 0s;" : ""}`);
+	};
+	if (alreadyOpen) {
+		updateAngle(false);
+	} else {
+		// 500ms is the duration of the transition specified in the CSS
+		const keepUpdatingUntil = Date.now() + 500;
+		const update = () => {
+			if (Date.now() <= keepUpdatingUntil) {
+				updateAngle(true);
+				requestAnimationFrame(update);
+			} else {
+				updateAngle(false);
+			}
+		};
+		update();
+	}
 
 	const sliceContentImageElement = document.querySelector("[data-slice-content-image]");
 	if (!sliceContentImageElement) return;
