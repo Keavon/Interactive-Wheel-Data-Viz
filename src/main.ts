@@ -63,6 +63,20 @@ function init() {
 			}
 		}
 	});
+
+	preloadImages();
+}
+
+function preloadImages() {
+	CONTENT_IMAGE_FOLDERS.forEach((folder) => {
+		CONTENT_IMAGE_NAMES.forEach((name) => {
+			const url = `images/${folder}/${name}`;
+			console.log(`Preloading ${url}`);
+
+			const img = new Image();
+			img.src = url;
+		});
+	});
 }
 
 function instantiateSvgElements() {
@@ -82,7 +96,13 @@ function instantiateSvgElements() {
 	for (let i = 0; i < TOTAL_TOPICS; i += 1) {
 		const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 		polygon.setAttribute("points", "0,0 0,0 0,0");
-		polygon.setAttribute("style", `--slice-color: var(--color-wheel-topic-${TOPICS_PER_CATEGORY - (i % TOPICS_PER_CATEGORY)})`);
+		polygon.setAttribute(
+			"style",
+			`
+			--slice-color: var(--color-wheel-topic-${TOPICS_PER_CATEGORY - (i % TOPICS_PER_CATEGORY)});
+			--slice-color-hover: var(--color-wheel-topic-${TOPICS_PER_CATEGORY - (i % TOPICS_PER_CATEGORY)}-hover)
+			`.trim()
+		);
 		polygon.setAttribute("data-slice", "");
 		slices.appendChild(polygon);
 	}
@@ -384,16 +404,35 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 
 	const sliceContentImageElement = document.querySelector("[data-slice-content-image]");
 	if (!sliceContentImageElement) return;
-	sliceContentImageElement.setAttribute("href", experienceImage);
+	if (alreadyOpen) {
+		sliceContentImageElement.classList.add("fade-out");
+		setTimeout(() => {
+			sliceContentImageElement.classList.remove("fade-out");
+			sliceContentImageElement.setAttribute("href", experienceImage);
+		}, 250);
+	} else {
+		sliceContentImageElement.setAttribute("href", experienceImage);
+	}
 
 	const sliceContentTextElement = document.querySelector("[data-slice-content-text]");
 	if (!(sliceContentTextElement instanceof HTMLElement)) return;
-	sliceContentTextElement.innerHTML = experienceText;
-	let size = 0.5;
-	sliceContentTextElement.style.setProperty("font-size", `${size}em`);
-	while (size > 0.1 && sliceContentTextElement.scrollHeight > sliceContentTextElement.offsetHeight) {
+	const placeText = () => {
+		sliceContentTextElement.innerHTML = experienceText;
+		let size = 0.5;
 		sliceContentTextElement.style.setProperty("font-size", `${size}em`);
-		size -= 0.01;
+		while (size > 0.1 && sliceContentTextElement.scrollHeight > sliceContentTextElement.offsetHeight) {
+			sliceContentTextElement.style.setProperty("font-size", `${size}em`);
+			size -= 0.01;
+		}
+	};
+	if (alreadyOpen) {
+		sliceContentTextElement.classList.add("fade-out");
+		setTimeout(() => {
+			sliceContentTextElement.classList.remove("fade-out");
+			placeText();
+		}, 250);
+	} else {
+		placeText();
 	}
 }
 

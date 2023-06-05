@@ -27,11 +27,17 @@
 	--color-background-right: #103054;
 	--color-background-right-gradient: #95ac3c;
 	--color-wheel-topic-1: #7fab40;
+	--color-wheel-topic-1-hover: #bfd5a0;
 	--color-wheel-topic-2: #a6c3c9;
+	--color-wheel-topic-2-hover: #d3e1e4;
 	--color-wheel-topic-3: #442968;
+	--color-wheel-topic-3-hover: #a294b4;
 	--color-wheel-topic-4: #f79321;
+	--color-wheel-topic-4-hover: #fbc990;
 	--color-wheel-topic-5: #d3c0ab;
+	--color-wheel-topic-5-hover: #e9e0d5;
 	--color-wheel-topic-6: #5f3415;
+	--color-wheel-topic-6-hover: #af9a8a;
 }
 
 html,
@@ -318,7 +324,7 @@ svg text {
 
 					&:hover,
 					&.category-hovered:not(.category-expanded) {
-						fill: color-mix(in hwb, white 25%, var(--slice-color) 75%);
+						fill: var(--slice-color-hover);
 					}
 				}
 			}
@@ -482,6 +488,12 @@ svg text {
 					height: calc(88px * 2);
 					x: -88px;
 					y: -88px;
+					filter: brightness(100%);
+					transition: filter 0.25s ease-in-out;
+
+					&.fade-out {
+						filter: brightness(0%);
+					}
 				}
 
 				.slice-content-text-quadrant {
@@ -526,6 +538,12 @@ svg text {
 						padding-top: 0.66em;
 						padding-right: 0.66em;
 						line-height: 1;
+						opacity: 1;
+						transition: opacity 0.25s ease-in-out;
+
+						&.fade-out {
+							opacity: 0;
+						}
 					}
 				}
 
