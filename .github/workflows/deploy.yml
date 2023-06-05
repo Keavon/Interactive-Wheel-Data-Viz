@@ -25,6 +25,8 @@ jobs:
           npm ci
           npm run build
           mv dist/* public
+          cd public
+          zip -r build.zip ./*
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
