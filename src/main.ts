@@ -44,7 +44,7 @@ function init() {
 	});
 
 	["[data-background]", "[data-hub]", "[data-experience-stats]", "[data-slice-content]"].forEach((selector) => {
-		document.querySelector(selector)?.addEventListener("click", () => closeThen());
+		document.querySelector(selector)?.addEventListener("click", () => goBack());
 	});
 
 	window.addEventListener("mousemove", (e) => {
@@ -70,11 +70,8 @@ function init() {
 function preloadImages() {
 	CONTENT_IMAGE_FOLDERS.forEach((folder) => {
 		CONTENT_IMAGE_NAMES.forEach((name) => {
-			const url = `images/${folder}/${name}`;
-			console.log(`Preloading ${url}`);
-
 			const img = new Image();
-			img.src = url;
+			img.src = `images/${folder}/${name}`;
 		});
 	});
 }
@@ -293,7 +290,7 @@ function currentlyOpenSlicesCategory(): number | undefined {
 	return typeof category === "number" ? category : undefined;
 }
 
-function closeThen(then?: () => void) {
+function goBack() {
 	const sliceContentOpen = document.body.classList.contains("slice-content-open");
 	if (sliceContentOpen) {
 		closeSliceContent();
@@ -310,9 +307,6 @@ function closeThen(then?: () => void) {
 	if (slicesOpen) {
 		// Close the slices
 		closeSlices();
-
-		// If a `then` callback was provided, call it after the animation is done closing
-		if (then) setTimeout(then, ANIMATION_LENGTH_CLOSE);
 	}
 }
 
@@ -322,6 +316,8 @@ function openSlices(categoryIndex: number) {
 	closeExperienceStats();
 
 	const open = () => {
+		document.body.classList.add("slices-open");
+
 		animation = {
 			category: categoryIndex,
 			timeStart: Date.now(),
@@ -331,16 +327,22 @@ function openSlices(categoryIndex: number) {
 		};
 	};
 
-	document.body.classList.add("slices-open");
+	if (currentlyOpenSlicesCategory() === undefined) {
+		open();
+	} else {
+		console.log("closing");
 
-	if (currentlyOpenSlicesCategory() === undefined) open();
-	else closeThen(open);
+		goBack();
+
+		// Call this after the animation is done closing
+		setTimeout(open, ANIMATION_LENGTH_CLOSE);
+	}
 }
 
 function closeSlices() {
-	document.body.classList.remove("slices-open");
-
 	if (currentlyOpenSlicesCategory() !== undefined) {
+		document.body.classList.remove("slices-open");
+
 		animation = {
 			category: currentlyOpenSlicesCategory() || 0,
 			timeStart: Date.now(),
@@ -418,11 +420,11 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 	if (!(sliceContentTextElement instanceof HTMLElement)) return;
 	const placeText = () => {
 		sliceContentTextElement.innerHTML = experienceText;
-		let size = 0.5;
-		sliceContentTextElement.style.setProperty("font-size", `${size}em`);
-		while (size > 0.1 && sliceContentTextElement.scrollHeight > sliceContentTextElement.offsetHeight) {
-			sliceContentTextElement.style.setProperty("font-size", `${size}em`);
-			size -= 0.01;
+		let size = 12;
+		sliceContentTextElement.style.setProperty("font-size", `${size}px`);
+		while (size > 3 && sliceContentTextElement.scrollHeight > sliceContentTextElement.offsetHeight) {
+			sliceContentTextElement.style.setProperty("font-size", `${size}px`);
+			size -= 0.1;
 		}
 	};
 	if (alreadyOpen) {

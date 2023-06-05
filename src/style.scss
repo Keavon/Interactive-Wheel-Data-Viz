@@ -319,6 +319,7 @@ svg text {
 				pointer-events: auto;
 
 				polygon {
+					cursor: pointer;
 					fill: var(--slice-color);
 					transition: fill 0.1s ease-out;
 
@@ -332,7 +333,6 @@ svg text {
 			&.experience-stats {
 				fill: white;
 				stroke: var(--experience-color);
-				stroke-width: 0.125rem;
 				transition: stroke 0.5s ease-in-out;
 				pointer-events: auto;
 
@@ -343,7 +343,7 @@ svg text {
 				}
 
 				line {
-					stroke-width: 0.15rem;
+					stroke-width: 2px;
 					stroke-linecap: round;
 					stroke-dasharray: 60px 1000px;
 					stroke-dashoffset: 60px;
@@ -353,7 +353,7 @@ svg text {
 				text {
 					fill: black;
 					stroke: none;
-					font-size: 0.3rem;
+					font-size: 4px;
 					opacity: 0;
 					transition: transform 0.5s ease-in-out, opacity 0.25s ease-in-out;
 				}
@@ -380,7 +380,7 @@ svg text {
 
 			&.category-labels {
 				text-anchor: middle;
-				font-size: 0.4rem;
+				font-size: 6px;
 			}
 
 			&.rings {
@@ -390,12 +390,12 @@ svg text {
 					opacity: 0.15;
 					fill: none;
 					stroke: white;
-					stroke-width: 0.02rem;
+					stroke-width: 0.2px;
 					transition: stroke 0.5s ease-in-out, opacity 0.5s ease-in-out;
 				}
 
 				text {
-					font-size: 0.25rem;
+					font-size: 4px;
 					fill: white;
 					transition: fill 0.5s ease-in-out;
 
@@ -438,14 +438,14 @@ svg text {
 					&.color-outline {
 						fill: none;
 						stroke: var(--slice-content-color);
-						stroke-width: 0.125rem;
+						stroke-width: 2px;
 						transition: r 0.5s ease-in-out, stroke 0.5s ease-in-out;
 					}
 
 					&.white-outline {
 						fill: none;
 						stroke: white;
-						stroke-width: 0.85rem;
+						stroke-width: 12px;
 					}
 
 					&.white-inner {
@@ -453,13 +453,13 @@ svg text {
 						stroke: white;
 
 						&.wide {
-							stroke-width: 0.1rem;
+							stroke-width: 1.5px;
 							r: calc(24px - 13px);
 							transition-delay: 20ms;
 						}
 
 						&.thin {
-							stroke-width: 0.033rem;
+							stroke-width: 0.5px;
 							r: calc(24px - 18.5px);
 							transition-delay: 40ms;
 						}
@@ -532,11 +532,11 @@ svg text {
 						margin: 0;
 						width: 100%;
 						height: 88px;
-						font-size: 0.5em;
+						font-size: 8px;
 						hyphens: auto;
 						box-sizing: border-box;
-						padding-top: 0.66em;
-						padding-right: 0.66em;
+						padding-top: 3px;
+						padding-right: 3px;
 						line-height: 1;
 						opacity: 1;
 						transition: opacity 0.25s ease-in-out;
@@ -579,9 +579,24 @@ svg text {
 			&.hub {
 				pointer-events: auto;
 
+				.slice-content-open &,
+				.experience-stats-open &,
+				.slices-open & {
+					cursor: pointer;
+
+					.back {
+						opacity: 0.33;
+					}
+				}
+
 				text {
 					text-anchor: middle;
-					font-size: 0.45rem;
+					font-size: 7px;
+
+					&.back {
+						opacity: 0;
+						transition: opacity 0.5s ease-in-out 0.5s;
+					}
 				}
 
 				.experience-name {
