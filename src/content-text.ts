@@ -113,7 +113,7 @@ export const CONTENT_IMAGE_FOLDERS = [
 	"01_psychological_impact",
 ] as const;
 
-export const CONTENT_IMAGE_NAMES = ["reeducated.png", "book-of-distance.png", "another-dream.png", "i-am-a-man.png", "1000-cut-journey.png", "becoming-homeless.png"] as const;
+export const CONTENT_IMAGE_NAMES = ["reeducated.jpg", "book-of-distance.jpg", "another-dream.jpg", "i-am-a-man.jpg", "1000-cut-journey.jpg", "becoming-homeless.jpg"] as const;
 
 export const EXPERIENCES_STATS = [
 	// [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
