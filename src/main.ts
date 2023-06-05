@@ -1,16 +1,8 @@
+import { CONTENT_TEXT, CONTENT_IMAGE_FOLDERS, CONTENT_IMAGE_NAMES, EXPERIENCES_STATS } from "./content-text";
 import "./style.scss";
 
 const TAU = Math.PI * 2;
-const CATEGORIES_LIST = ["Impact", "Emotion", "Interactivity", "Embodiment", "Flow", "Cognition", "Enjoyment", "Time", "Scale", "Space", "Point of View", "Visuals/Sound"].reverse();
-const EXPERIENCES_STATS = [
-	// [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-	[7.69, 7.72, 2.75, 4.83, 7.81, 8.42, 8.03, 7.61, 7.72, 8.33, 8.36, 8.17],
-	[7.23, 8.57, 8.57, 8.27, 7.07, 9.0, 7.83, 8.87, 8.7, 8.47, 8.97, 8.67, 8.57],
-	[6.82, 6.9, 5.8, 4.53, 7.17, 7.21, 7.4, 6.87, 7.6, 7.32, 7.86, 7.7],
-	[6.59, 7.35, 5.71, 6.68, 7.53, 6.62, 6.94, 7.82, 8.24, 7.29, 6.88, 6.5],
-	[7.61, 7.23, 7.03, 7.0, 8.3, 6.63, 7.03, 8.2, 7.73, 6.2, 8.13, 7.41],
-	[7.57, 8.14, 7.71, 8.29, 8.25, 6.32, 6.89, 7.97, 8.43, 8.64, 8.43, 7.71],
-] as const;
+const CATEGORIES_LIST = Object.keys(CONTENT_TEXT).reverse() as Array<keyof typeof CONTENT_TEXT>;
 const CATEGORIES = CATEGORIES_LIST.length;
 const TOPICS_PER_CATEGORY = 6;
 const TOTAL_TOPICS = CATEGORIES * TOPICS_PER_CATEGORY;
@@ -271,6 +263,13 @@ function close(then?: () => void) {
 }
 
 function openSliceContent(sliceIndex: number, categoryIndex: number, experienceIndex: number) {
+	const categoryName = CATEGORIES_LIST[categoryIndex];
+	const experienceText = CONTENT_TEXT[categoryName][experienceIndex];
+
+	const categoryFolder = CONTENT_IMAGE_FOLDERS[categoryIndex];
+	const experienceImageFileName = CONTENT_IMAGE_NAMES[experienceIndex];
+	const experienceImage = `images/${categoryFolder}/${experienceImageFileName}`;
+
 	document.body.classList.add("slice-content-open");
 	document.body.style.setProperty("--slice-content-color", `var(--color-wheel-topic-${experienceIndex + 1})`);
 
@@ -281,24 +280,25 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 
 	const sliceClippingMaskPolygon = document.querySelector("#slice-content-open-slice-mask polygon");
 	const sliceClippingMaskPath = document.querySelectorAll("[data-slice]") || undefined;
-	if (sliceClippingMaskPolygon && sliceClippingMaskPath) {
-		// const [startAngle, stopAngle] = sliceAngles[index];
-		// const conflationFix = index === slices.length - 1 ? 0 : CONFLATION_FIX_ANGLE;
+	if (!sliceClippingMaskPolygon || !sliceClippingMaskPath) return;
 
-		// // Write the vertex angles to the polygon for this slice
-		// const startX = -Math.sin(startAngle) * SLICE_RADIUS;
-		// const startY = -Math.cos(startAngle) * SLICE_RADIUS;
-		// const stopX = -Math.sin(stopAngle + conflationFix) * SLICE_RADIUS;
-		// const stopY = -Math.cos(stopAngle + conflationFix) * SLICE_RADIUS;
-		// slice.setAttribute("points", `0,0 ${startX},${startY} ${stopX},${stopY}`);
+	const polygonElement = sliceClippingMaskPath[sliceIndex];
+	const points = polygonElement?.getAttribute("data-points-no-conflation") || "";
+	if (!points) return;
+	sliceClippingMaskPolygon.setAttribute("points", points);
 
-		const polygonElement = sliceClippingMaskPath[sliceIndex];
-		const points = polygonElement?.getAttribute("data-points-no-conflation") || "";
-		if (!points) return;
-		const [x, y] = points.split(",").map((n) => parseFloat(n));
-		const angle = Math.atan2(y, x);
-		console.log(angle);
-		sliceClippingMaskPolygon.setAttribute("points", points);
+	const sliceContentImageElement = document.querySelector("[data-slice-content-image]");
+	if (!sliceContentImageElement) return;
+	sliceContentImageElement.setAttribute("href", experienceImage);
+
+	const sliceContentTextElement = document.querySelector("[data-slice-content-text]");
+	if (!(sliceContentTextElement instanceof HTMLElement)) return;
+	sliceContentTextElement.innerHTML = experienceText;
+	let size = 0.5;
+	sliceContentTextElement.style.setProperty("font-size", `${size}em`);
+	while (size > 0.1 && sliceContentTextElement.scrollHeight > sliceContentTextElement.offsetHeight) {
+		sliceContentTextElement.style.setProperty("font-size", `${size}em`);
+		size -= 0.01;
 	}
 }
 
