@@ -532,7 +532,7 @@ svg text {
 						margin: 0;
 						width: 100%;
 						height: 88px;
-						font-size: 8px;
+						font-size: 6px;
 						hyphens: auto;
 						box-sizing: border-box;
 						padding-top: 5px;
@@ -583,20 +583,11 @@ svg text {
 				.experience-stats-open &,
 				.slices-open & {
 					cursor: pointer;
-
-					.back {
-						opacity: 0.33;
-					}
 				}
 
 				text {
 					text-anchor: middle;
 					font-size: 7px;
-
-					&.back {
-						opacity: 0;
-						transition: opacity 0.5s ease-in-out 0.5s;
-					}
 				}
 
 				.experience-name {

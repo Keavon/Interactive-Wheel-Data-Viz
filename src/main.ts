@@ -330,8 +330,6 @@ function openSlices(categoryIndex: number) {
 	if (currentlyOpenSlicesCategory() === undefined) {
 		open();
 	} else {
-		console.log("closing");
-
 		goBack();
 
 		// Call this after the animation is done closing
@@ -420,7 +418,7 @@ function openSliceContent(sliceIndex: number, categoryIndex: number, experienceI
 	if (!(sliceContentTextElement instanceof HTMLElement)) return;
 	const placeText = () => {
 		sliceContentTextElement.innerHTML = experienceText;
-		let size = 12;
+		let size = parseFloat(getComputedStyle(sliceContentTextElement).fontSize);
 		sliceContentTextElement.style.setProperty("font-size", `${size}px`);
 		while (size > 3 && sliceContentTextElement.scrollHeight > sliceContentTextElement.offsetHeight) {
 			sliceContentTextElement.style.setProperty("font-size", `${size}px`);
