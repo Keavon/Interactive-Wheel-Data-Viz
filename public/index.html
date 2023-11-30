@@ -18,7 +18,7 @@
 					<span data-experience-title>The Book of Distance</span>
 					<span>Nationality/Culture. Lead author: Artist</span>
 				</button>
-				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-3)">
+				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-3); --color-text: var(--color-wheel-topic-3-text)">
 					<span data-experience-title>Another Dream</span>
 					<span>Immigration + LGBT.<br />Lead authors: Artists</span>
 				</button>
@@ -32,13 +32,19 @@
 					<span data-experience-title>1000 Cut Journey</span>
 					<span>Race. Lead authors: Psychologists</span>
 				</button>
-				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-6)">
+				<button class="experience" data-experience-button style="--color: var(--color-wheel-topic-6); --color-text: var(--color-wheel-topic-6-text)">
 					<span data-experience-title>Becoming Homeless</span>
 					<span>Socio-economic Status.<br />Lead authors: Psychologists</span>
 				</button>
 			</div>
 		</div>
 		<div class="perception-axis-label">
+			<svg class="left" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 27.6 198.2" width="27.6" height="198.2">
+				<path d="M-23.2,197.8c10,4,15.5-21.6,15.5-21.6c8.1-41.2,6-65.6,35.2-77.1h0l0,0C-1.6,87.6,0.4,63.2-7.7,22c0,0-5.5-25.6-15.5-21.6V197.8z" />
+			</svg>
+			<svg class="right" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 27.6 198.2" width="27.6" height="198.2">
+				<path d="M-23.2,197.8c10,4,15.5-21.6,15.5-21.6c8.1-41.2,6-65.6,35.2-77.1h0l0,0C-1.6,87.6,0.4,63.2-7.7,22c0,0-5.5-25.6-15.5-21.6V197.8z" />
+			</svg>
 			<div class="left">Sensory<br />Perception</div>
 			<div class="right">Psychological<br />Perception</div>
 		</div>
@@ -106,6 +112,9 @@
 						<circle r="100" />
 					</clipPath>
 				</defs>
+				<g class="slices-background">
+					<circle r="100" />
+				</g>
 				<g class="slices" clip-path="url(#slices-mask)" data-slices></g>
 				<g class="experience-stats" data-experience-stats>
 					<circle />
@@ -211,14 +220,14 @@
 				</g>
 				<g class="hub" data-hub>
 					<circle r="28" />
-					<text dominant-baseline="middle" x="0" y="-1.1em">Design of VR</text>
-					<text dominant-baseline="middle" x="0" y="0">for Inclusion</text>
 					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-1)" data-experience-name>Reeducated</text>
 					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-2)" data-experience-name>The Book of Distance</text>
-					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-3)" data-experience-name>Another Dream</text>
+					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-3-text)" data-experience-name>Another Dream</text>
 					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-4)" data-experience-name>I am a Man</text>
 					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-5)" data-experience-name>1000 Cut Journey</text>
-					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-6)" data-experience-name>Becoming Homeless</text>
+					<text dominant-baseline="middle" x="0" y="1.25em" class="experience-name" style="--color: var(--color-wheel-topic-6-text)" data-experience-name>Becoming Homeless</text>
+					<text class="project-name" dominant-baseline="middle" x="0" y="-0.55em">Design of VR</text>
+					<text class="project-name" dominant-baseline="middle" x="0" y="0.55em">for Inclusion</text>
 				</g>
 			</svg>
 		</div>
