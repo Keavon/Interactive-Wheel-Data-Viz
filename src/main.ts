@@ -453,6 +453,7 @@ function openExperienceStats(openExperience: number) {
 
 	document.body.classList.add("experience-stats-open");
 	document.body.style.setProperty("--experience-color", `var(--color-wheel-topic-${openExperience + 1})`);
+	document.body.style.setProperty("--experience-color-text", `var(--color-wheel-topic-${openExperience + 1}-text, var(--color-wheel-topic-${openExperience + 1}))`);
 
 	document.querySelector("[data-experience-name].open")?.classList.remove("open");
 	document.querySelectorAll("[data-experience-name]")[openExperience].classList.add("open");
