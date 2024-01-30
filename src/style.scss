@@ -45,28 +45,98 @@
 	--color-wheel-topic-6-text: #c69c6d;
 }
 
+html {
+	--aspect-ratio-shrink: 1;
+	font-size: calc(1.5vh * var(--aspect-ratio-shrink));
+
+	@media (max-aspect-ratio: 1.5) {
+		--aspect-ratio-shrink: 0.9;
+	}
+
+	@media (max-aspect-ratio: 1.33) {
+		--aspect-ratio-shrink: 0.8;
+	}
+
+	@media (max-aspect-ratio: 1.2) {
+		--aspect-ratio-shrink: 0.7;
+	}
+
+	@media (max-aspect-ratio: 1.1) {
+		--aspect-ratio-shrink: 0.6;
+	}
+
+	@media (max-aspect-ratio: 1) {
+		--aspect-ratio-shrink: 0.5;
+	}
+
+	@media (max-aspect-ratio: 0.8) {
+		--aspect-ratio-shrink: 0.45;
+	}
+
+	@media (max-aspect-ratio: 0.7) {
+		--aspect-ratio-shrink: 0.4;
+	}
+
+	@media (max-aspect-ratio: 0.6) {
+		--aspect-ratio-shrink: 0.35;
+	}
+
+	@media (max-aspect-ratio: 0.55) {
+		--aspect-ratio-shrink: 0.33;
+	}
+
+	@media (max-aspect-ratio: 0.5) {
+		--aspect-ratio-shrink: 0.3;
+	}
+
+	@media (max-aspect-ratio: 0.45) {
+		--aspect-ratio-shrink: 0.25;
+	}
+}
+
 html,
-body {
+body,
+.container {
 	width: 100%;
 	height: 100%;
 	margin: 0;
-	font-size: 1.5vh;
-}
-
-body {
 	display: flex;
 	align-items: center;
-	font-family: "Futura Condensed PT Medium", Arial, sans-serif;
 	background: var(--color-background);
-	min-width: 150vh;
-	--min-gap-from-wheel: calc(-1vh * var(--wheel-height-percent-of-page) / 2 * 1.62);
-	--gap-from-wheel: min(calc(-50vw * 0.95), var(--min-gap-from-wheel));
 }
 
+.container {
+	@supports not (container-type: size) {
+		> * {
+			display: none !important;
+		}
+
+		.unsupported-browser {
+			display: block !important;
+			margin: auto;
+			color: white;
+
+			p {
+				text-align: center;
+				font-size: 2rem;
+				margin: 1rem 0;
+			}
+		}
+	}
+
+	// The root for the `cqh` unit, 100cqh is the height of this container
+	container-type: size;
+	height: calc(100vh * var(--aspect-ratio-shrink));
+	--min-gap-from-wheel: calc(-1cqh * var(--wheel-height-percent-of-page) / 2 * 1.62);
+	--gap-from-wheel: min(calc(-50vw * 0.95), var(--min-gap-from-wheel));
+	font-family: "Futura Condensed PT Medium", Arial, sans-serif;
+}
+
+// Used as the click target for deselection
 .background {
 	position: absolute;
-	width: 100%;
-	height: 100%;
+	width: 100vw;
+	height: 100vh;
 }
 
 svg text {
@@ -236,21 +306,24 @@ svg text {
 	overflow: hidden;
 	pointer-events: none;
 
-	.wrapper {
+	.likert-wrapper {
 		position: absolute;
 		margin: auto;
 		left: 0;
 		right: 0;
-		bottom: calc(var(--wheel-height-percent-of-page) * 0.06 * 1vh);
-		width: calc(var(--wheel-height-percent-of-page) * 0.6 * 1vh);
-		transform: translateY(calc(var(--wheel-height-percent-of-page) * 0.12 * 1vh));
-		transition: transform 0.5s ease-in-out;
+		bottom: calc(var(--wheel-height-percent-of-page) * 0.06 * 1cqh);
+		width: calc(var(--wheel-height-percent-of-page) * 0.6 * 1cqh);
+		opacity: 0;
+		transform: translateY(calc(var(--wheel-height-percent-of-page) * 0.12 * 1cqh));
+		transition: opacity 0s 0.5s, transform 0.5s ease-in-out;
 		font-size: 1.25rem;
 		color: var(--likert-color);
 		--likert-color: var(--experience-color-text);
 
 		.experience-stats-open & {
+			opacity: 1;
 			transform: translateY(0);
+			transition: opacity 0s, transform 0.5s ease-in-out;
 		}
 
 		* {
@@ -260,8 +333,8 @@ svg text {
 		.bar {
 			background: var(--likert-color);
 			width: 100%;
-			height: calc(var(--wheel-height-percent-of-page) * 0.01 * 1vh);
-			border-radius: 100vh;
+			height: calc(var(--wheel-height-percent-of-page) * 0.01 * 1cqh);
+			border-radius: 100cqh;
 		}
 
 		.description {
@@ -278,8 +351,8 @@ svg text {
 
 		.tick {
 			top: 0;
-			width: calc(var(--wheel-height-percent-of-page) * 0.01 * 1vh);
-			height: calc(var(--wheel-height-percent-of-page) * 0.01 * 1vh);
+			width: calc(var(--wheel-height-percent-of-page) * 0.01 * 1cqh);
+			height: calc(var(--wheel-height-percent-of-page) * 0.01 * 1cqh);
 			background: var(--likert-color);
 			transform: translateX(-50%) scaleX(0.2) scaleY(2) rotate(45deg);
 		}
@@ -304,11 +377,11 @@ svg text {
 	position: relative;
 	pointer-events: none;
 	width: 100%;
-	height: calc(var(--wheel-height-percent-of-page) * 1vh);
+	height: calc(var(--wheel-height-percent-of-page) * 1cqh);
 	transition: transform 0.5s ease-in-out;
 
 	.experience-stats-open & {
-		transform: scale(0.9) translateY(calc(var(--wheel-height-percent-of-page) * 1vh * -0.05));
+		transform: scale(0.9) translateY(calc(var(--wheel-height-percent-of-page) * 1cqh * -0.05));
 	}
 
 	.bicolor-background {
@@ -316,8 +389,8 @@ svg text {
 		&::after {
 			content: "";
 			position: absolute;
-			width: calc(var(--wheel-background-height-percent-of-page) * 1vh / 2);
-			height: calc(var(--wheel-background-height-percent-of-page) * 1vh);
+			width: calc(var(--wheel-background-height-percent-of-page) * 1cqh / 2);
+			height: calc(var(--wheel-background-height-percent-of-page) * 1cqh);
 			top: 0;
 			bottom: 0;
 			margin: auto;
@@ -326,13 +399,13 @@ svg text {
 		&::before {
 			right: 50%;
 			background: var(--color-wheel-background-left);
-			border-radius: 100vh 0 0 100vh;
+			border-radius: 100cqh 0 0 100cqh;
 		}
 
 		&::after {
 			left: 50%;
 			background: var(--color-wheel-background-right);
-			border-radius: 0 100vh 100vh 0;
+			border-radius: 0 100cqh 100cqh 0;
 		}
 	}
 
@@ -351,27 +424,27 @@ svg text {
 			overflow: visible;
 			position: absolute;
 			width: auto;
-			height: calc(var(--wheel-height-percent-of-page) * 1vh * 0.3);
+			height: calc(var(--wheel-height-percent-of-page) * 1cqh * 0.3);
 			margin: auto;
 			top: 0;
 			bottom: 0;
 
 			&.left {
 				fill: var(--color-wheel-background-left);
-				right: calc(1vh * var(--wheel-background-height-percent-of-page) / 2);
+				right: calc(1cqh * var(--wheel-background-height-percent-of-page) / 2);
 				transform: scaleX(-1);
 			}
 
 			&.right {
 				fill: var(--color-wheel-background-right);
-				left: calc(1vh * var(--wheel-background-height-percent-of-page) / 2);
+				left: calc(1cqh * var(--wheel-background-height-percent-of-page) / 2);
 			}
 		}
 
 		div {
 			position: absolute;
-			padding: 6px 24px;
-			border-radius: 16px;
+			padding: 0.333rem 1.333rem;
+			border-radius: 0.666rem;
 			font-size: 1.666rem;
 			line-height: 1.2;
 			color: white;
@@ -380,7 +453,7 @@ svg text {
 			transform: translateY(-50%);
 
 			&.left {
-				right: calc(1vh * var(--wheel-background-height-percent-of-page) / 2 * (1.075));
+				right: calc(1cqh * var(--wheel-background-height-percent-of-page) / 2 * (1.075));
 				background: var(--color-wheel-background-left);
 
 				&::after {
@@ -391,7 +464,7 @@ svg text {
 			}
 
 			&.right {
-				left: calc(1vh * var(--wheel-background-height-percent-of-page) / 2 * (1.075));
+				left: calc(1cqh * var(--wheel-background-height-percent-of-page) / 2 * (1.075));
 				background: var(--color-wheel-background-right);
 
 				&::before {
@@ -415,7 +488,7 @@ svg text {
 		}
 	}
 
-	.wheel-content {
+	svg.wheel-content {
 		display: block;
 		position: absolute;
 		width: auto;
