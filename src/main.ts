@@ -124,13 +124,18 @@ function instantiateSvgElements() {
 	}
 
 	for (let i = 0; i < CATEGORIES; i += 1) {
+		// A container group wrapping the text is required due to this Safari bug: <https://stackoverflow.com/questions/58230668/css-transform-on-svg-text-element-not-working-in-safari>
+		const valueTextGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		valueTextGroup.setAttribute("data-experience-value-group", "");
+		experienceStats.appendChild(valueTextGroup);
+		const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
+		valueTextGroup.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
+
 		const valueText = document.createElementNS("http://www.w3.org/2000/svg", "text");
 		valueText.setAttribute("data-experience-value", "");
 		valueText.setAttribute("text-anchor", "middle");
 		valueText.setAttribute("alignment-baseline", "middle");
-		const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
-		valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
-		experienceStats.appendChild(valueText);
+		valueTextGroup.appendChild(valueText);
 	}
 
 	CATEGORIES_LIST.forEach((category) => {
@@ -465,6 +470,7 @@ function openExperienceStats(openExperience: number) {
 		statLine.style.setProperty("--stat-value", `${EXPERIENCES_STATS[x][i]}`);
 	});
 
+	const experienceValueGroup = Array.from(document.querySelectorAll("[data-experience-value-group]"));
 	const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
 	experienceValue.forEach((valueText, i) => {
 		if (!(valueText instanceof SVGElement)) return;
@@ -473,7 +479,7 @@ function openExperienceStats(openExperience: number) {
 
 		valueText.innerHTML = value.toFixed(2);
 		const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
-		valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, ${-(28 + 6 * value)}px) rotate(${-rotation}deg)`);
+		experienceValueGroup[i].setAttribute("style", `transform: rotate(${rotation}deg) translate(0, ${-(28 + 6 * value)}px) rotate(${-rotation}deg)`);
 	});
 }
 
@@ -483,12 +489,10 @@ function closeExperienceStats() {
 
 	document.querySelector("[data-experience-name].open")?.classList.remove("open");
 
-	const experienceValue = Array.from(document.querySelectorAll("[data-experience-value]"));
-	experienceValue.forEach((valueText, i) => {
-		if (!(valueText instanceof SVGElement)) return;
-
+	const experienceValueGroup = Array.from(document.querySelectorAll("[data-experience-value-group]"));
+	experienceValueGroup.forEach((valueGroup, i) => {
 		const rotation = (i / CATEGORIES) * 360 - EXPERIENCE_VALUE_OFFSET_DEGREES;
-		valueText.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
+		valueGroup.setAttribute("style", `transform: rotate(${rotation}deg) translate(0, -24px) rotate(${-rotation}deg)`);
 	});
 
 	document.body.classList.remove("experience-stats-open");

@@ -15,6 +15,7 @@
 * {
 	min-width: 0;
 	min-height: 0;
+	-webkit-user-select: none;
 	user-select: none;
 }
 
@@ -468,12 +469,15 @@ svg text {
 					transition: stroke-dashoffset 0.5s ease-in-out;
 				}
 
-				text {
-					fill: black;
-					stroke: none;
-					font-size: 4px;
-					opacity: 0;
+				g {
 					transition: transform 0.5s ease-in-out, opacity 0.25s ease-in-out;
+
+					text {
+						fill: black;
+						stroke: none;
+						font-size: 4px;
+						opacity: 0;
+					}
 				}
 
 				.experience-stats-open & {
@@ -485,9 +489,12 @@ svg text {
 						stroke-dashoffset: calc((60 - 28 - min(var(--stat-value) * 6 - 1, 58)) * 1px);
 					}
 
-					text {
-						opacity: 1;
+					g {
 						transition: transform 0.5s ease-in-out, opacity 0.25s 0.25s ease-in-out;
+
+						text {
+							opacity: 1;
+						}
 					}
 				}
 			}
@@ -604,8 +611,7 @@ svg text {
 				image {
 					width: calc(88px * 2);
 					height: calc(88px * 2);
-					x: -88px;
-					y: -88px;
+					transform: translate(-88px, -88px);
 					filter: brightness(100%);
 					transition: filter 0.25s ease-in-out;
 
@@ -618,13 +624,10 @@ svg text {
 					fill: white;
 					width: 88px;
 					height: 88px;
-					x: -88px;
-					y: 0;
+					transform: translate(-88px, 0);
 				}
 
 				foreignObject div {
-					position: relative;
-
 					svg {
 						position: relative;
 						overflow: hidden;
@@ -727,6 +730,8 @@ svg text {
 				}
 
 				.experience-name.open ~ .project-name {
+					// Font size is set here so the `em` unit is correct
+					font-size: 7px;
 					transform: translateY(-0.55em);
 				}
 			}
