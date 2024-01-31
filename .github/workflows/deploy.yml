@@ -29,7 +29,6 @@ jobs:
         run: |
           npm ci
           npm run build
-          cp -r public/* dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
