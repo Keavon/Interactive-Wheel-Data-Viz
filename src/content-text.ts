@@ -35,9 +35,9 @@ export const CONTENT_TEXT = {
 	Flow: [
 		"The experience is visually and narratively cohesive due to its artistic visualizations and continuous narration. The only interruption is a scene of a detainee singing in the grassland.",
 		"As in a theater, artistic visual props and backdrops move in and out of view while spotlights guide the participant’s eye. These elements create a cohesive narrative flow.",
-		"Even though visuals are diverse, alternating 2D and 3D, the thematically relevant interactive transition of writing in Arabic creates an episodic and cohesive narrative flow.",
+		"Alternating 2D and 3D visual styles, and the thematically relevant interactive transition of writing in Arabic create an episodic and cohesive narrative flow.",
 		"The narrative is linear, but unclear interactive elements halt the action breaking the flow of events.",
-		"Episodic narrative, with a mirror and voice, prompts to instill embodiment at every phase of the main character’s life.",
+		"Episodic narrative, with transitions in front of a mirror, aims to induce embodiment at every phase of the main character’s life.",
 		"Different scenes and events appear through fade-in/out effects, transitioning participants through time and space.",
 	],
 	Cognition: [
