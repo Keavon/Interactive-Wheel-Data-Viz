@@ -22,7 +22,7 @@ export const CONTENT_TEXT = {
 		"The participant is prompted to write words in Arabic in between chapters of the protagonists’ journey to progress through the experience.",
 		"The participant has to pick up props to progress through the events, even though it is unclear which items allow interaction.",
 		"Participants can move their limbs, such as waving in front of a mirror, and pick up or throw items.",
-		"The participants can point at items and move their hands through space.",
+		"Directed by voice prompts, participants point at items and move their hands through space while environments change around them.",
 	],
 	Embodiment: [
 		"Participants are inside the camp with the detainees, feeling like one of them. No digital hands or an avatar body is present to induce embodiment",
